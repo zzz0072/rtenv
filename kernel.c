@@ -314,6 +314,12 @@ void queue_str_task2()
     queue_str_task("Hello 2\n", 50);
 }
 
+void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
+{
+    write(out_fd, cmd, cmd_char_num);
+    write(out_fd, "\r$", 3);
+}
+
 void serial_readwrite_task()
 {
     int fdout, fdin;
@@ -325,11 +331,8 @@ void serial_readwrite_task()
     fdout = mq_open("/tmp/mqueue/out", 0);
     fdin = open("/dev/tty0/in", 0);
 
-    /* Prepare the response message to be queued. */
-    memcpy(str, "Got:", 4);
-
     while (1) {
-        curr_char = 4;
+        curr_char = 0;
         done = 0;
         do {
             /* Receive a byte from the RS232 port (this call will
@@ -354,7 +357,9 @@ void serial_readwrite_task()
         /* Once we are done building the response string, queue the
          * response to be sent to the RS232 port.
          */
-        write(fdout, str, curr_char+1+1);
+        if (strlen(str) < 100) {        
+            proc_cmd(fdout, str, curr_char+1+1);
+        }
     }
 }
 
