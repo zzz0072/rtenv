@@ -328,7 +328,18 @@ void queue_str_task2()
 
 void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
 {
+    /* Dump command first */
     write(out_fd, cmd, cmd_char_num);
+    
+    /* Lets process command */
+    if (strncmp(cmd, "ps", 2) == 0) {
+        write(out_fd, "Handle ps\n", strlen("Handle ps\n") + 1);
+    }
+    else {
+        write(out_fd, "Command not found.\n", strlen("Command not found.\n") + 1);
+    }
+
+    /* Show prompt */
     write(out_fd, "\r$", 3);
 }
 
