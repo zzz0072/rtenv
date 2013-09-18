@@ -62,6 +62,8 @@ int strncmp(const char *a, const char *b, size_t n)
     return 0;
 }
 
+#define MAX_MSG_CHARS (64)
+
 #define RT_OK  (0)
 #define RT_ERR (1)
 int intToString(int num, char *str_num, int str_buf_bytes)
@@ -109,6 +111,17 @@ int intToString(int num, char *str_num, int str_buf_bytes)
     }
 
     return RT_OK;
+}
+
+void my_printf(char *msg)
+{
+    int fdout = mq_open("/tmp/mqueue/out", 0);
+
+    if (!msg) {
+        return;
+    }
+
+    write(fdout, msg, strlen(msg) + 1);
 }
 
 /* System calls */
@@ -177,6 +190,31 @@ struct task_control_block {
     struct task_control_block **prev;
     struct task_control_block  *next;
 };
+
+struct task_info {
+    struct task_control_block *tasks;
+    int *task_amount;
+};
+
+static struct task_info g_task_info;
+
+static char *get_task_status(int status)
+{
+    switch (status) {
+        case TASK_READY:
+            return "Ready";
+        case TASK_WAIT_READ:
+            return "Wait read";
+        case TASK_WAIT_WRITE:
+            return "Wait write";
+        case TASK_WAIT_INTR:
+            return "Wait intr";
+        case TASK_WAIT_TIME:
+            return "Wait time";
+        default:
+            return "Unknown Status";
+    }
+}
 
 /* 
  * pathserver assumes that all files are FIFOs that were registered
@@ -387,21 +425,53 @@ void queue_str_task2()
     queue_str_task("Hello 2\n", 50);
 }
 
-void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
+static void cmd_ps(void)
+{
+    int i = 0;
+    char msg[MAX_MSG_CHARS];
+
+    my_printf("\rList process\n");
+
+    /* This should not happen actually */
+    if (!g_task_info.tasks) {
+        return;
+    }
+
+    /* Start list */
+    for (i = 0; i < *(g_task_info.task_amount); i++) {
+        /* PID */
+        my_printf("\rPID: ");
+        intToString(g_task_info.tasks[i].pid, msg, MAX_MSG_CHARS);
+        my_printf(msg);
+
+        /* Priority */
+        my_printf(", Priority: ");
+        intToString(g_task_info.tasks[i].priority , msg, MAX_MSG_CHARS);
+        my_printf(msg);
+
+        /* Status */
+        my_printf(", Status: ");
+        my_printf(get_task_status(g_task_info.tasks[i].status));
+
+        my_printf("\n");
+    }
+}
+
+static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
 {
     /* Dump command first */
     write(out_fd, cmd, cmd_char_num);
 
     /* Lets process command */
     if (strncmp(cmd, "ps", 2) == 0) {
-        write(out_fd, "\rHandle ps\n", strlen("\rHandle ps\n") + 1);
+        cmd_ps();
     }
     else {
-        write(out_fd, "\rCommand not found.\n", strlen("\rCommand not found.\n") + 1);
+        my_printf("\rCommand not found.\n");
     }
 
     /* Show prompt */
-    write(out_fd, "\r$", 3);
+    my_printf("\r$");
 }
 
 void serial_readwrite_task()
@@ -776,6 +846,10 @@ int main()
     tasks[task_count].pid = 0;
     tasks[task_count].priority = PRIORITY_DEFAULT;
     task_count++;
+    
+    /* dirty global tasks */
+    g_task_info.tasks = tasks;
+    g_task_info.task_amount = &task_count;
 
     /* Initialize all pipes */
     for (i = 0; i < PIPE_LIMIT; i++)
