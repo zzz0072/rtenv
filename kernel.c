@@ -62,6 +62,48 @@ int strncmp(const char *a, const char *b, size_t n)
     return 0;
 }
 
+#define RT_OK  (0)
+#define RT_ERR (1)
+int intToString(int num, char *str_num, int str_buf_bytes)
+{
+    char* curr_str_pos = str_num;
+    int   digits;
+
+    /* Regular check */
+    if (!str_num) {
+        return RT_ERR;
+    }
+
+    /* Negative number case */
+    if (num < 0) {
+        *curr_str_pos = '-';
+        curr_str_pos++;
+        num = -1 * num;
+    }
+    digits = num;
+
+    /* How any digits we need? */
+    while (digits) {
+        digits = digits / 10;
+        curr_str_pos++;
+
+        /* Buffer full? */
+        if ((int)(curr_str_pos - str_num) >=  str_buf_bytes) {
+            return RT_ERR;
+        }
+    }
+
+    /* Convert digit by digit */
+    *curr_str_pos = 0;
+    while (num) {
+        curr_str_pos--;
+        *curr_str_pos = (num % 10) + 0x30;
+        num = num / 10;
+    }
+
+    return RT_OK;
+}
+
 /* System calls */
 #define SYS_CALL_FORK        (0x01)
 #define SYS_CALL_GETPID      (0x02)
