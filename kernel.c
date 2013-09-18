@@ -74,6 +74,13 @@ int intToString(int num, char *str_num, int str_buf_bytes)
         return RT_ERR;
     }
 
+    /* Special case: 0 */
+    if (!num) {
+        *curr_str_pos       = '0';
+        *(curr_str_pos + 1) = 0;
+        return RT_OK;
+    }
+
     /* Negative number case */
     if (num < 0) {
         *curr_str_pos = '-';
