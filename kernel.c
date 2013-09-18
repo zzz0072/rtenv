@@ -61,6 +61,17 @@ void puts(char *s)
     }
 }
 
+/* System calls */
+#define SYS_CALL_FORK        (0x01)
+#define SYS_CALL_GETPID      (0x02)
+#define SYS_CALL_WRITE       (0x03)
+#define SYS_CALL_READ        (0x04)
+#define SYS_CALL_WAIT_INTR   (0x05)
+#define SYS_CALL_GETPRIORITY (0x06)
+#define SYS_CALL_SETPRIORITY (0x07)
+#define SYS_CALL_MK_NODE     (0x08)
+#define SYS_CALL_SLEEP       (0x09)
+
 #define STACK_SIZE 512 /* Size of task stacks in words */
 #define TASK_LIMIT 8  /* Max number of tasks we can handle */
 #define PIPE_BUF   64 /* Size of largest atomic pipe message */
@@ -68,7 +79,7 @@ void puts(char *s)
 #define PIPE_LIMIT (TASK_LIMIT * 2)
 
 #define PATHSERVER_FD (TASK_LIMIT + 3) 
-    /* File descriptor of pipe to pathserver */
+/* File descriptor of pipe to pathserver */
 
 #define PRIORITY_DEFAULT 20
 #define PRIORITY_LIMIT (PRIORITY_DEFAULT * 2 - 1)
@@ -734,7 +745,7 @@ int main()
         timeup = 0;
 
         switch (tasks[current_task].stack->r7) {
-        case 0x1: /* fork */
+        case SYS_CALL_FORK:
             if (task_count == TASK_LIMIT) {
                 /* Cannot create a new task, return error */
                 tasks[current_task].stack->r0 = -1;
@@ -762,22 +773,22 @@ int main()
                 task_count++;
             }
             break;
-        case 0x2: /* getpid */
+        case SYS_CALL_GETPID:
             tasks[current_task].stack->r0 = current_task;
             break;
-        case 0x3: /* write */
+        case SYS_CALL_WRITE:
             _write(&tasks[current_task], tasks, task_count, pipes);
             break;
-        case 0x4: /* read */
+        case SYS_CALL_READ:
             _read(&tasks[current_task], tasks, task_count, pipes);
             break;
-        case 0x5: /* interrupt_wait */
+        case SYS_CALL_WAIT_INTR:
             /* Enable interrupt */
             NVIC_EnableIRQ(tasks[current_task].stack->r0);
             /* Block task waiting for interrupt to happen */
             tasks[current_task].status = TASK_WAIT_INTR;
             break;
-        case 0x6: /* getpriority */
+        case SYS_CALL_GETPRIORITY:
             {
                 int who = tasks[current_task].stack->r0;
                 if (who > 0 && who < (int)task_count)
@@ -787,7 +798,7 @@ int main()
                 else
                     tasks[current_task].stack->r0 = -1;
             } break;
-        case 0x7: /* setpriority */
+        case SYS_CALL_SETPRIORITY:
             {
                 int who = tasks[current_task].stack->r0;
                 int value = tasks[current_task].stack->r1;
@@ -802,7 +813,7 @@ int main()
                 }
                 tasks[current_task].stack->r0 = 0;
             } break;
-        case 0x8: /* mknod */
+        case SYS_CALL_MK_NODE:
             if (tasks[current_task].stack->r0 < PIPE_LIMIT)
                 tasks[current_task].stack->r0 =
                     _mknod(&pipes[tasks[current_task].stack->r0],
@@ -810,7 +821,7 @@ int main()
             else
                 tasks[current_task].stack->r0 = -1;
             break;
-        case 0x9: /* sleep */
+        case SYS_CALL_SLEEP:
             if (tasks[current_task].stack->r0 != 0) {
                 tasks[current_task].stack->r0 += tick_count;
                 tasks[current_task].status = TASK_WAIT_TIME;
