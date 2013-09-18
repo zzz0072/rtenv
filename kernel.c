@@ -384,13 +384,13 @@ void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
 {
     /* Dump command first */
     write(out_fd, cmd, cmd_char_num);
-    
+
     /* Lets process command */
     if (strncmp(cmd, "ps", 2) == 0) {
-        write(out_fd, "Handle ps\n", strlen("Handle ps\n") + 1);
+        write(out_fd, "\rHandle ps\n", strlen("\rHandle ps\n") + 1);
     }
     else {
-        write(out_fd, "Command not found.\n", strlen("Command not found.\n") + 1);
+        write(out_fd, "\rCommand not found.\n", strlen("\rCommand not found.\n") + 1);
     }
 
     /* Show prompt */
@@ -717,10 +717,10 @@ mq_write (struct pipe_ringbuffer *pipe,
     const char *buf = (const char*)task->stack->r1;
     /* Copy count into pipe */
     for (i = 0; i < sizeof(size_t); i++)
-        PIPE_PUSH(*pipe,*(((char*)&task->stack->r2)+i));
+        PIPE_PUSH(*pipe, *(((char*)&task->stack->r2) + i));
     /* Copy data into pipe */
     for (i = 0; i < task->stack->r2; i++)
-        PIPE_PUSH(*pipe,buf[i]);
+        PIPE_PUSH(*pipe, buf[i]);
     return task->stack->r2;
 }
 
