@@ -24,18 +24,6 @@ int strcmp(const char *a, const char *b)
     );
 }
 
-int strncmp(const char *a, const char *b, size_t n)
-{
-    int i = 0;
-
-    for(i = 0; i < n; i++) {
-        if (a[i] != b[i]) {
-            return a[i] - b[i];
-        }
-    }
-    return 0;
-}
-
 size_t strlen(const char *s) __attribute__ ((naked));
 size_t strlen(const char *s)
 {
@@ -59,6 +47,19 @@ void puts(char *s)
         USART_SendData(USART2, *s);
         s++;
     }
+}
+
+/* Hand made tools */
+int strncmp(const char *a, const char *b, size_t n)
+{
+    int i = 0;
+
+    for(i = 0; i < n; i++) {
+        if (a[i] != b[i]) {
+            return a[i] - b[i];
+        }
+    }
+    return 0;
 }
 
 /* System calls */
