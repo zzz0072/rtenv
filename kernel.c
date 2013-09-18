@@ -469,9 +469,6 @@ static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
     else {
         my_printf("\rCommand not found.\n");
     }
-
-    /* Show prompt */
-    my_printf("\r$");
 }
 
 void serial_readwrite_task()
@@ -486,6 +483,9 @@ void serial_readwrite_task()
     fdin = open("/dev/tty0/in", 0);
 
     while (1) {
+        /* Show prompt */
+        my_printf("\r$ ");
+
         curr_char = 0;
         done = 0;
         do {
