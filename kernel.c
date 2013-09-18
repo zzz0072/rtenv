@@ -18,7 +18,7 @@ int strcmp(const char *a, const char *b)
         "   it      hi              \n"
         "   cmphi   r2, r3          \n"
         "   beq     strcmp_lop      \n"
-        "	sub     r0, r2, r3  	\n"
+        "    sub     r0, r2, r3      \n"
         "   bx      lr              \n"
         :::
     );
@@ -40,13 +40,13 @@ size_t strlen(const char *s) __attribute__ ((naked));
 size_t strlen(const char *s)
 {
     asm(
-        "	sub  r3, r0, #1			\n"
+        "    sub  r3, r0, #1            \n"
         "strlen_loop:               \n"
-        "	ldrb r2, [r3, #1]!		\n"
-        "	cmp  r2, #0				\n"
+        "    ldrb r2, [r3, #1]!        \n"
+        "    cmp  r2, #0                \n"
         "   bne  strlen_loop        \n"
-        "	sub  r0, r3, r0			\n"
-        "	bx   lr					\n"
+        "    sub  r0, r3, r0            \n"
+        "    bx   lr                    \n"
         :::
     );
 }
@@ -94,14 +94,14 @@ struct user_thread_stack {
     unsigned int r9;
     unsigned int r10;
     unsigned int fp;
-    unsigned int _lr;	/* Back to system calls or return exception */
-    unsigned int _r7;	/* Backup from isr */
+    unsigned int _lr;    /* Back to system calls or return exception */
+    unsigned int _r7;    /* Backup from isr */
     unsigned int r0;
     unsigned int r1;
     unsigned int r2;
     unsigned int r3;
     unsigned int ip;
-    unsigned int lr;	/* Back to user thread code */
+    unsigned int lr;    /* Back to user thread code */
     unsigned int pc;
     unsigned int xpsr;
     unsigned int stack[STACK_SIZE - 18];
@@ -380,7 +380,7 @@ void serial_readwrite_task()
         /* Once we are done building the response string, queue the
          * response to be sent to the RS232 port.
          */
-        if (strlen(str) < 100) {        
+        if (strlen(str) < 100) {
             proc_cmd(fdout, str, curr_char+1+1);
         }
     }
