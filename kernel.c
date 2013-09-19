@@ -124,17 +124,6 @@ void my_printf(char *msg)
     write(fdout, msg, strlen(msg) + 1);
 }
 
-/* System calls */
-#define SYS_CALL_FORK        (0x01)
-#define SYS_CALL_GETPID      (0x02)
-#define SYS_CALL_WRITE       (0x03)
-#define SYS_CALL_READ        (0x04)
-#define SYS_CALL_WAIT_INTR   (0x05)
-#define SYS_CALL_GETPRIORITY (0x06)
-#define SYS_CALL_SETPRIORITY (0x07)
-#define SYS_CALL_MK_NODE     (0x08)
-#define SYS_CALL_SLEEP       (0x09)
-
 #define STACK_SIZE 512 /* Size of task stacks in words */
 #define TASK_LIMIT 8  /* Max number of tasks we can handle */
 #define PIPE_BUF   64 /* Size of largest atomic pipe message */

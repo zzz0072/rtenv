@@ -2,11 +2,12 @@
 	.cpu cortex-m3
 	.fpu softvfp
 	.thumb
+#include "syscall_def.h"
 
 .global fork
 fork:
 	push {r7}
-	mov r7, #0x1
+	mov r7, SYS_CALL_FORK
 	svc 0
 	nop
 	pop {r7}
@@ -14,7 +15,7 @@ fork:
 .global getpid
 getpid:
 	push {r7}
-	mov r7, #0x2
+	mov r7, SYS_CALL_GETPID
 	svc 0
 	nop
 	pop {r7}
@@ -22,7 +23,7 @@ getpid:
 .global write
 write:
 	push {r7}
-	mov r7, #0x3
+	mov r7, SYS_CALL_WRITE
 	svc 0
 	nop
 	pop {r7}
@@ -30,7 +31,7 @@ write:
 .global read
 read:
 	push {r7}
-	mov r7, #0x4
+	mov r7, SYS_CALL_READ
 	svc 0
 	nop
 	pop {r7}
@@ -38,7 +39,7 @@ read:
 .global interrupt_wait
 interrupt_wait:
 	push {r7}
-	mov r7, #0x5
+	mov r7, SYS_CALL_WAIT_INTR
 	svc 0
 	nop
 	pop {r7}
@@ -46,7 +47,7 @@ interrupt_wait:
 .global getpriority
 getpriority:
 	push {r7}
-	mov r7, #0x6
+	mov r7, SYS_CALL_GETPRIORITY
 	svc 0
 	nop
 	pop {r7}
@@ -54,7 +55,7 @@ getpriority:
 .global setpriority
 setpriority:
 	push {r7}
-	mov r7, #0x7
+	mov r7, SYS_CALL_SETPRIORITY
 	svc 0
 	nop
 	pop {r7}
@@ -62,7 +63,7 @@ setpriority:
 .global mknod
 mknod:
 	push {r7}
-	mov r7, #0x8
+	mov r7, SYS_CALL_MK_NODE
 	svc 0
 	nop
 	pop {r7}
@@ -70,7 +71,7 @@ mknod:
 .global sleep
 sleep:
 	push {r7}
-	mov r7, #0x9
+	mov r7, SYS_CALL_SLEEP
 	svc 0
 	nop
 	pop {r7}
