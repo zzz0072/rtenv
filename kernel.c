@@ -129,6 +129,7 @@ void my_printf(char *msg)
 #define PIPE_BUF   64 /* Size of largest atomic pipe message */
 #define PATH_MAX   32 /* Longest absolute path */
 #define PIPE_LIMIT (TASK_LIMIT * 2)
+#define MAX_DESC_CHARS (32)
 
 #define PATHSERVER_FD (TASK_LIMIT + 3) 
 /* File descriptor of pipe to pathserver */
@@ -176,6 +177,7 @@ struct task_control_block {
     int pid;
     int status;
     int priority;
+    char desc[MAX_DESC_CHARS];
     struct task_control_block **prev;
     struct task_control_block  *next;
 };
@@ -428,8 +430,13 @@ static void cmd_ps(void)
 
     /* Start list */
     for (i = 0; i < *(g_task_info.task_amount); i++) {
+        /* Process description*/
+        my_printf("\r");
+        my_printf(g_task_info.tasks[i].desc);
+        my_printf(" -> ");
+
         /* PID */
-        my_printf("\rPID: ");
+        my_printf("PID: ");
         intToString(g_task_info.tasks[i].pid, msg, MAX_MSG_CHARS);
         my_printf(msg);
 
@@ -510,11 +517,34 @@ void first()
 {
     setpriority(0, 0);
 
-    if (!fork()) setpriority(0, 0), pathserver();
-    if (!fork()) setpriority(0, 0), serialout(USART2, USART2_IRQn);
-    if (!fork()) setpriority(0, 0), serialin(USART2, USART2_IRQn);
-    if (!fork()) rs232_xmit_msg_task();
-    if (!fork()) setpriority(0, PRIORITY_DEFAULT - 10), serial_readwrite_task();
+    if (!fork()) {
+        setpriority(0, 0);
+        setProcDesc("pathserver", strlen("pathserver") + 1);
+        pathserver();
+    }
+
+    if (!fork()) {
+        setpriority(0, 0);
+        setProcDesc("serialout", strlen("serialout") + 1);
+        serialout(USART2, USART2_IRQn);
+    }
+
+    if (!fork()) {
+        setpriority(0, 0);
+        setProcDesc("serialin", strlen("serialin") + 1);
+        serialin(USART2, USART2_IRQn);
+    }
+
+    if (!fork()) {
+        setProcDesc("rs232_xmit_msg_task", strlen("rs232_xmit_msg_task") + 1);
+        rs232_xmit_msg_task();
+    }
+
+    if (!fork()) {
+        setpriority(0, PRIORITY_DEFAULT - 10);
+        setProcDesc("serial_readwrite_task", strlen("serial_readwrite_task") + 1);
+        serial_readwrite_task();
+    }
 
     setpriority(0, PRIORITY_LIMIT);
 
@@ -629,6 +659,21 @@ void _read(struct task_control_block *task, struct task_control_block *tasks, si
                     _write(&tasks[i], tasks, task_count, pipes);
         }
     }
+}
+
+static void _copyProcDesc(void *dst, void *src, int char_to_copied)
+{
+    int i = 0;
+    /* Boundary check */
+    if (char_to_copied > MAX_DESC_CHARS) {
+        char_to_copied = MAX_DESC_CHARS;
+    }
+
+    /* Let's copy */
+    memcpy(dst, src, char_to_copied);
+
+    /* Just make sure */
+    *((char *)dst + char_to_copied - 1) = 0;
 }
 
 void _write(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes)
@@ -834,6 +879,9 @@ int main()
     tasks[task_count].stack = (void*)init_task(stacks[task_count], &first);
     tasks[task_count].pid = 0;
     tasks[task_count].priority = PRIORITY_DEFAULT;
+    
+    _copyProcDesc((void *)tasks[task_count].desc, 
+                    (void *)"Init", 5);
     task_count++;
     
     /* dirty global tasks */
@@ -940,6 +988,18 @@ int main()
                 tasks[current_task].status = TASK_WAIT_TIME;
             }
             break;
+        case SYS_CALL_GET_PROC_DESC:
+            {
+                _copyProcDesc((void *)tasks[current_task].stack->r0, 
+                                (void *)tasks[current_task].desc,
+                                tasks[current_task].stack->r1);
+            } break;
+        case SYS_CALL_SET_PROC_DESC:
+            {
+                _copyProcDesc((void *)tasks[current_task].desc, 
+                                (void *)tasks[current_task].stack->r0, 
+                                tasks[current_task].stack->r1);
+            } break;
         default: /* Catch all interrupts */
             if ((int)tasks[current_task].stack->r7 < 0) {
                 unsigned int intr = -tasks[current_task].stack->r7 - 16;

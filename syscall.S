@@ -84,3 +84,21 @@ sleep:
     nop
     pop {r7}
     bx lr
+
+.global getProcDesc
+getProcDesc:
+    push {r7}
+    mov r7, SYS_CALL_GET_PROC_DESC
+    svc 0
+    nop
+    pop {r7}
+    bx lr
+
+.global setProcDesc
+setProcDesc:
+    push {r7}
+    mov r7, SYS_CALL_SET_PROC_DESC
+    svc 0
+    nop
+    pop {r7}
+    bx lr
