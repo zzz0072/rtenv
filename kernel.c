@@ -62,7 +62,7 @@ int strncmp(const char *a, const char *b, size_t n)
     return 0;
 }
 
-#define MAX_MSG_CHARS (64)
+#define MAX_MSG_CHARS (32)
 
 #define RT_OK  (0)
 #define RT_ERR (1)
@@ -453,6 +453,26 @@ static void cmd_ps(void)
     }
 }
 
+static void help_menu(void)
+{
+    char cmds[][MAX_DESC_CHARS] = {{"ps - list process"},
+                                       {"help - this menu"},
+                                       {"endcmd"}};
+    int i = 0;
+
+    my_printf("\rAvailable Commands:\n");
+    while (1) {
+        if (strncmp(cmds[i], "endcmd", 6) == 0) {
+            break;
+        }
+
+        my_printf("\r");
+        my_printf(cmds[i]);
+        my_printf("\n");
+        i++;
+    }
+}
+
 static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
 {
     /* Dump command first */
@@ -461,6 +481,9 @@ static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
     /* Lets process command */
     if (strncmp(cmd, "ps", 2) == 0) {
         cmd_ps();
+    }
+    else if (strncmp(cmd, "help", 4) == 0) {
+        help_menu();
     }
     else {
         my_printf("\rCommand not found.\n");
@@ -478,6 +501,7 @@ void serial_readwrite_task()
     fdout = mq_open("/tmp/mqueue/out", 0);
     fdin = open("/dev/tty0/in", 0);
 
+    help_menu();
     while (1) {
         /* Show prompt */
         my_printf("\r$ ");
