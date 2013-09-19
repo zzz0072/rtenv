@@ -12,6 +12,7 @@ fork:
 	nop
 	pop {r7}
 	bx lr
+
 .global getpid
 getpid:
 	push {r7}
@@ -20,6 +21,7 @@ getpid:
 	nop
 	pop {r7}
 	bx lr
+
 .global write
 write:
 	push {r7}
@@ -28,6 +30,7 @@ write:
 	nop
 	pop {r7}
 	bx lr
+
 .global read
 read:
 	push {r7}
@@ -36,6 +39,7 @@ read:
 	nop
 	pop {r7}
 	bx lr
+
 .global interrupt_wait
 interrupt_wait:
 	push {r7}
@@ -44,6 +48,7 @@ interrupt_wait:
 	nop
 	pop {r7}
 	bx lr
+
 .global getpriority
 getpriority:
 	push {r7}
@@ -52,6 +57,7 @@ getpriority:
 	nop
 	pop {r7}
 	bx lr
+
 .global setpriority
 setpriority:
 	push {r7}
@@ -60,6 +66,7 @@ setpriority:
 	nop
 	pop {r7}
 	bx lr
+
 .global mknod
 mknod:
 	push {r7}
@@ -68,6 +75,7 @@ mknod:
 	nop
 	pop {r7}
 	bx lr
+
 .global sleep
 sleep:
 	push {r7}
