@@ -413,7 +413,10 @@ void serial_readwrite_task()
         /* Once we are done building the response string, queue the
          * response to be sent to the RS232 port.
          */
-        if (strlen(str) < 100) {
+        if (str[0] == '\n') {
+            my_print("\n");
+        }
+        else if (strlen(str) < 100) {
             proc_cmd(fdout, str, curr_char+1+1);
         }
     }
