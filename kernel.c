@@ -509,6 +509,7 @@ task_push (struct task_control_block **list, struct task_control_block *item)
             *(item->prev) = item->next;
         if (item->next)
             item->next->prev = item->prev;
+ 
         /* Insert into new list */
         while (*list) list = &((*list)->next);
         *list = item;
@@ -542,6 +543,7 @@ void _write(struct task_control_block *task, struct task_control_block *tasks, s
 void _read(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes)
 {
     task->status = TASK_READY;
+
     /* If the fd is invalid */
     if (task->stack->r0 > PIPE_LIMIT) {
         task->stack->r0 = -1;
@@ -565,6 +567,7 @@ void _read(struct task_control_block *task, struct task_control_block *tasks, si
 static void _copyProcDesc(void *dst, void *src, int char_to_copied)
 {
     int i = 0;
+
     /* Boundary check */
     if (char_to_copied > MAX_DESC_CHARS) {
         char_to_copied = MAX_DESC_CHARS;
@@ -580,6 +583,7 @@ static void _copyProcDesc(void *dst, void *src, int char_to_copied)
 void _write(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes)
 {
     task->status = TASK_READY;
+
     /* If the fd is invalid */
     if (task->stack->r0 > PIPE_LIMIT) {
         task->stack->r0 = -1;
@@ -646,6 +650,7 @@ fifo_read (struct pipe_ringbuffer *pipe,
 {
     size_t i;
     char *buf = (char*)task->stack->r1;
+
     /* Copy data into buf */
     for (i = 0; i < task->stack->r2; i++) {
         PIPE_POP(*pipe, buf[i]);
@@ -680,6 +685,7 @@ fifo_writable (struct pipe_ringbuffer *pipe,
         task->stack->r0 = -1;
         return 0;
     }
+ 
     /* Preserve 1 byte to distiguish empty or full */
     if ((size_t)PIPE_BUF - PIPE_LEN(*pipe) - 1 < task->stack->r2) {
         /* Trying to write more than we have space for: block */
@@ -700,6 +706,7 @@ mq_writable (struct pipe_ringbuffer *pipe,
         task->stack->r0 = -1;
         return 0;
     }
+
     /* Preserve 1 byte to distiguish empty or full */
     if ((size_t)PIPE_BUF - PIPE_LEN(*pipe) - 1 < total_len) {
         /* Trying to write more than we have space for: block */
@@ -715,6 +722,7 @@ fifo_write (struct pipe_ringbuffer *pipe,
 {
     size_t i;
     const char *buf = (const char*)task->stack->r1;
+
     /* Copy data into pipe */
     for (i = 0; i < task->stack->r2; i++)
         PIPE_PUSH(*pipe,buf[i]);
@@ -727,9 +735,11 @@ mq_write (struct pipe_ringbuffer *pipe,
 {
     size_t i;
     const char *buf = (const char*)task->stack->r1;
+
     /* Copy count into pipe */
     for (i = 0; i < sizeof(size_t); i++)
         PIPE_PUSH(*pipe, *(((char*)&task->stack->r2) + i));
+
     /* Copy data into pipe */
     for (i = 0; i < task->stack->r2; i++)
         PIPE_PUSH(*pipe, buf[i]);
@@ -816,44 +826,57 @@ int main()
                 /* Compute how much of the stack is used */
                 size_t used = stacks[current_task] + STACK_SIZE
                           - (unsigned int*)tasks[current_task].stack;
+
                 /* New stack is END - used */
                 tasks[task_count].stack = (void*)(stacks[task_count] + STACK_SIZE - used);
+
                 /* Copy only the used part of the stack */
                 memcpy(tasks[task_count].stack, tasks[current_task].stack,
                        used * sizeof(unsigned int));
+
                 /* Set PID */
                 tasks[task_count].pid = task_count;
+
                 /* Set priority, inherited from forked task */
                 tasks[task_count].priority = tasks[current_task].priority;
+
                 /* Set description */
                 _copyProcDesc((void *)tasks[task_count].desc, 
                                 (void *)tasks[task_count].stack->r0, 
                                 tasks[current_task].stack->r1);
+
                 /* Set return values in each process */
                 tasks[current_task].stack->r0 = task_count;
                 tasks[task_count].stack->r0 = 0;
                 tasks[task_count].prev = NULL;
                 tasks[task_count].next = NULL;
                 task_push(&ready_list[tasks[task_count].priority], &tasks[task_count]);
+
                 /* There is now one more task */
                 task_count++;
             }
             break;
+
         case SYS_CALL_GETPID:
             tasks[current_task].stack->r0 = current_task;
             break;
+
         case SYS_CALL_WRITE:
             _write(&tasks[current_task], tasks, task_count, pipes);
             break;
+
         case SYS_CALL_READ:
             _read(&tasks[current_task], tasks, task_count, pipes);
             break;
+
         case SYS_CALL_WAIT_INTR:
             /* Enable interrupt */
             NVIC_EnableIRQ(tasks[current_task].stack->r0);
+
             /* Block task waiting for interrupt to happen */
             tasks[current_task].status = TASK_WAIT_INTR;
             break;
+
         case SYS_CALL_GETPRIORITY:
             {
                 int who = tasks[current_task].stack->r0;
@@ -864,6 +887,7 @@ int main()
                 else
                     tasks[current_task].stack->r0 = -1;
             } break;
+
         case SYS_CALL_SETPRIORITY:
             {
                 int who = tasks[current_task].stack->r0;
@@ -879,6 +903,7 @@ int main()
                 }
                 tasks[current_task].stack->r0 = 0;
             } break;
+
         case SYS_CALL_MK_NODE:
             if (tasks[current_task].stack->r0 < PIPE_LIMIT)
                 tasks[current_task].stack->r0 =
@@ -887,24 +912,28 @@ int main()
             else
                 tasks[current_task].stack->r0 = -1;
             break;
+
         case SYS_CALL_SLEEP:
             if (tasks[current_task].stack->r0 != 0) {
                 tasks[current_task].stack->r0 += tick_count;
                 tasks[current_task].status = TASK_WAIT_TIME;
             }
             break;
+
         case SYS_CALL_GET_PROC_DESC:
             {
                 _copyProcDesc((void *)tasks[current_task].stack->r0, 
                                 (void *)tasks[current_task].desc,
                                 tasks[current_task].stack->r1);
             } break;
+
         case SYS_CALL_SET_PROC_DESC:
             {
                 _copyProcDesc((void *)tasks[current_task].desc, 
                                 (void *)tasks[current_task].stack->r0, 
                                 tasks[current_task].stack->r1);
             } break;
+
         default: /* Catch all interrupts */
             if ((int)tasks[current_task].stack->r7 < 0) {
                 unsigned int intr = -tasks[current_task].stack->r7 - 16;
@@ -918,6 +947,7 @@ int main()
                     /* Disable interrupt, interrupt_wait re-enables */
                     NVIC_DisableIRQ(intr);
                 }
+
                 /* Unblock any waiting tasks */
                 for (i = 0; i < task_count; i++)
                     if ((tasks[i].status == TASK_WAIT_INTR && tasks[i].stack->r0 == intr) ||
@@ -933,6 +963,7 @@ int main()
                 task_push(&ready_list[task->priority], task);
             task = next;
         }
+
         /* Select next TASK_READY task */
         for (i = 0; i < (size_t)tasks[current_task].priority && ready_list[i] == NULL; i++);
         if (tasks[current_task].status == TASK_READY) {
