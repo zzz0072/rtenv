@@ -6,7 +6,7 @@
 /* Prototypes */
 void *activate(void *stack);
 
-int fork(const void *proc_descption, size_t count);
+int fork(const void *proc_descption);
 int getpid();
 
 int write(int fd, const void *buf, size_t count);
