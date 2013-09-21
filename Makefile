@@ -36,7 +36,7 @@ endif
 
 all: main.bin
 
-main.bin: kernel.c context_switch.s syscall.s syscall.h
+main.bin: $(SRCS) syscall.h util.h
 	$(CROSS_COMPILE)gcc \
 		-Wl,-Tmain.ld -nostartfiles \
 		-I . \
