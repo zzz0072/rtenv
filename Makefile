@@ -12,16 +12,21 @@ STM32_LIB=$(LIBDIR)/libraries/STM32F10x_StdPeriph_Driver
 
 CMSIS_PLAT_SRC = $(CMSIS_LIB)/DeviceSupport/$(VENDOR)/$(PLAT)
 
-SRCS= \
+CMSIS_SRCS = \
 		$(CMSIS_LIB)/CoreSupport/core_cm3.c \
 		$(CMSIS_PLAT_SRC)/system_stm32f10x.c \
-		$(CMSIS_PLAT_SRC)/startup/gcc_ride7/startup_stm32f10x_md.s \
+		$(CMSIS_PLAT_SRC)/startup/gcc_ride7/startup_stm32f10x_md.s
+
+STM32_SRCS = \
 		$(STM32_LIB)/src/stm32f10x_rcc.c \
 		$(STM32_LIB)/src/stm32f10x_gpio.c \
 		$(STM32_LIB)/src/stm32f10x_usart.c \
 		$(STM32_LIB)/src/stm32f10x_exti.c \
-		$(STM32_LIB)/src/misc.c \
-		\
+		$(STM32_LIB)/src/misc.c
+
+SRCS= \
+		$(CMSIS_SRCS) \
+		$(STM32_SRCS) \
 		context_switch.s \
 		syscall.c \
 		stm32_p103.c \
