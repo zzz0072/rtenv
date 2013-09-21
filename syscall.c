@@ -1,156 +1,83 @@
 #include "syscall_def.h"
 #include <stddef.h>
 
+#define ENCLOSE_QUOTE(VAR) #VAR
+#define TO_STR(VAR) ENCLOSE_QUOTE(VAR)
+
+#define SYS_CALL_BODY(ACT) \
+    asm( \
+      "push {r7}\n" \
+      "mov r7," ACT "\n"\
+      "svc 0\n"\
+      "nop\n"\
+      "pop {r7}\n"\
+      "bx lr\n"\
+        :::\
+    );
+
+
 int fork(const void *proc_descption) __attribute__ ((naked));
 int fork(const void *proc_descption)
 {
-    asm(
-      "push {r7}\n"
-      "mov r7, #0x01\n"
-      "svc 0\n"
-      "nop\n"
-      "pop {r7}\n"
-      "bx lr\n"
-        :::
-    );
+    SYS_CALL_BODY(TO_STR(SYS_CALL_FORK));
 }
 
 int getpid() __attribute__ ((naked));
 int getpid()
 {
-    asm(
-      "push {r7}\n"
-      "mov r7, #0x02\n"
-      "svc 0\n"
-      "nop\n"
-      "pop {r7}\n"
-      "bx lr\n"
-        :::
-    );
+    SYS_CALL_BODY(TO_STR(SYS_CALL_GETPID));
 }
 
 int write(int fd, const void *buf, size_t count) __attribute__ ((naked));
 int write(int fd, const void *buf, size_t count)
 {
-    asm(
-      "push {r7}\n"
-      "mov r7, #0x03\n"
-      "svc 0\n"
-      "nop\n"
-      "pop {r7}\n"
-      "bx lr\n"
-        :::
-    );
+    SYS_CALL_BODY(TO_STR(SYS_CALL_WRITE));
 }
 
 int read(int fd, void *buf, size_t count) __attribute__ ((naked));
 int read(int fd, void *buf, size_t count)
 {
-    asm(
-      "push {r7}\n"
-      "mov r7, #0x04\n"
-      "svc 0\n"
-      "nop\n"
-      "pop {r7}\n"
-      "bx lr\n"
-        :::
-    );
+    SYS_CALL_BODY(TO_STR(SYS_CALL_READ));
 }
 
 void interrupt_wait(int intr) __attribute__ ((naked));
 void interrupt_wait(int intr)
 {
-    asm(
-      "push {r7}\n"
-      "mov r7, #0x05\n"
-      "svc 0\n"
-      "nop\n"
-      "pop {r7}\n"
-      "bx lr\n"
-        :::
-    );
+    SYS_CALL_BODY(TO_STR(SYS_CALL_WAIT_INTR));
 }
 
 int getpriority(int who) __attribute__ ((naked));
 int getpriority(int who)
 {
-    asm(
-      "push {r7}\n"
-      "mov r7, #0x06\n"
-      "svc 0\n"
-      "nop\n"
-      "pop {r7}\n"
-      "bx lr\n"
-        :::
-    );
+    SYS_CALL_BODY(TO_STR(SYS_CALL_GETPRIORITY));
 }
 
 int setpriority(int who, int value) __attribute__ ((naked));
 int setpriority(int who, int value)
 {
-    asm(
-      "push {r7}\n"
-      "mov r7, #0x07\n"
-      "svc 0\n"
-      "nop\n"
-      "pop {r7}\n"
-      "bx lr\n"
-        :::
-    );
+    SYS_CALL_BODY(TO_STR(SYS_CALL_SETPRIORITY));
 }
 
 int mknod(int fd, int mode, int dev) __attribute__ ((naked));
 int mknod(int fd, int mode, int dev)
 {
-    asm(
-      "push {r7}\n"
-      "mov r7, #0x08\n"
-      "svc 0\n"
-      "nop\n"
-      "pop {r7}\n"
-      "bx lr\n"
-        :::
-    );
+    SYS_CALL_BODY(TO_STR(SYS_CALL_MK_NODE));
 }
 
 void sleep(unsigned int msec) __attribute__ ((naked));
 void sleep(unsigned int msec)
 {
-    asm(
-      "push {r7}\n"
-      "mov r7, #0x09\n"
-      "svc 0\n"
-      "nop\n"
-      "pop {r7}\n"
-      "bx lr\n"
-        :::
-    );
+    SYS_CALL_BODY(TO_STR(SYS_CALL_SLEEP));
 }
 
 int setProcName(const void *proc_name, size_t count) __attribute__ ((naked));
 int setProcName(const void *proc_name, size_t count)
 {
-    asm(
-      "push {r7}\n"
-      "mov r7, #0x0a\n"
-      "svc 0\n"
-      "nop\n"
-      "pop {r7}\n"
-      "bx lr\n"
-        :::
-    );
+    SYS_CALL_BODY(TO_STR(SYS_CALL_GET_PROC_NAME));
 }
 
 int getProcName(void *proc_name, size_t count) __attribute__ ((naked));
 int getProcName(void *proc_name, size_t count)
 {
-    asm(
-      "push {r7}\n"
-      "mov r7, #0x0b\n"
-      "svc 0\n"
-      "nop\n"
-      "pop {r7}\n"
-      "bx lr\n"
-        :::
-    );
+    SYS_CALL_BODY(TO_STR(SYS_CALL_SET_PROC_NAME));
 }
