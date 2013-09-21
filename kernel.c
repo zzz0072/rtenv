@@ -75,7 +75,7 @@ static char *get_task_status(int status)
 {
     switch (status) {
         case TASK_READY:
-            return "Ready";
+            return "Ready   ";
         case TASK_WAIT_READ:
             return "Wait read";
         case TASK_WAIT_WRITE:
@@ -312,24 +312,23 @@ static void cmd_ps(void)
 
     /* Start list */
     for (i = 0; i < *(g_task_info.task_amount); i++) {
-        /* Process description*/
-        my_print("\r");
-        my_print(g_task_info.tasks[i].desc);
-        my_print(" -> ");
-
         /* PID */
-        my_print("PID: ");
+        my_print("\rPID: ");
         intToString(g_task_info.tasks[i].pid, msg, MAX_MSG_CHARS);
         my_print(msg);
 
         /* Priority */
-        my_print(", Priority: ");
+        my_print("\tPriority: ");
         intToString(g_task_info.tasks[i].priority , msg, MAX_MSG_CHARS);
         my_print(msg);
 
         /* Status */
-        my_print(", Status: ");
+        my_print("\tStatus: ");
         my_print(get_task_status(g_task_info.tasks[i].status));
+
+        /* Process description*/
+        my_print("\t");
+        my_print(g_task_info.tasks[i].desc);
 
         my_print("\n");
     }
