@@ -13,13 +13,13 @@ void my_puts(char *s)
 }
 
 /* Hand made tools */
-int strncmp(const char *a, const char *b, size_t n)
+int strncmp(const char *str_a, const char *str_b, size_t n)
 {
     int i = 0;
 
     for(i = 0; i < n; i++) {
-        if (a[i] != b[i]) {
-            return a[i] - b[i];
+        if (str_a[i] != str_b[i]) {
+            return str_a[i] - str_b[i];
         }
     }
     return 0;
@@ -83,7 +83,40 @@ void my_printf(char *msg)
     write(fdout, msg, strlen(msg) + 1);
 }
 
-#ifdef USE_ASM_OPTI_FUNC
+#ifndef USE_ASM_OPTI_FUNC
+int strcmp(const char *str_a, const char *str_b)
+{
+    int i = 0;
+
+    while(str_a[i]) {
+        if (str_a[i] != str_b[i]) {
+            return str_a[i] - str_b[i];
+        }
+        i++;
+    }
+    return 0;
+}
+
+size_t strlen(const char *string)
+{
+    int chars = 0;
+
+    while(*string++) {
+        chars++;
+    }
+    return chars;
+}
+
+void *memcpy(void *dest, const void *src, size_t n)
+{
+    int i;
+
+    for (i = 0; i < n; i++) {
+        *((char *)dest + i) = *((char *)src + i);
+    }
+    return dest;
+}
+#else 
 int strcmp(const char *a, const char *b) __attribute__ ((naked));
 int strcmp(const char *a, const char *b)
 {
