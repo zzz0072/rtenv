@@ -23,7 +23,7 @@ SRCS= \
 		$(STM32_LIB)/src/misc.c \
 		\
 		context_switch.s \
-		syscall.S \
+		syscall.c \
 		stm32_p103.c \
 		kernel.c \
 		str_util.c
