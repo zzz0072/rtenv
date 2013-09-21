@@ -72,7 +72,7 @@ int intToString(int num, char *str_num, int str_buf_bytes)
     return RT_OK;
 }
 
-void my_printf(char *msg)
+void my_print(char *msg)
 {
     int fdout = mq_open("/tmp/mqueue/out", 0);
 

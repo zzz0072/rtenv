@@ -303,7 +303,7 @@ static void cmd_ps(void)
     int i = 0;
     char msg[MAX_MSG_CHARS];
 
-    my_printf("\rList process\n");
+    my_print("\rList process\n");
 
     /* This should not happen actually */
     if (!g_task_info.tasks) {
@@ -313,25 +313,25 @@ static void cmd_ps(void)
     /* Start list */
     for (i = 0; i < *(g_task_info.task_amount); i++) {
         /* Process description*/
-        my_printf("\r");
-        my_printf(g_task_info.tasks[i].desc);
-        my_printf(" -> ");
+        my_print("\r");
+        my_print(g_task_info.tasks[i].desc);
+        my_print(" -> ");
 
         /* PID */
-        my_printf("PID: ");
+        my_print("PID: ");
         intToString(g_task_info.tasks[i].pid, msg, MAX_MSG_CHARS);
-        my_printf(msg);
+        my_print(msg);
 
         /* Priority */
-        my_printf(", Priority: ");
+        my_print(", Priority: ");
         intToString(g_task_info.tasks[i].priority , msg, MAX_MSG_CHARS);
-        my_printf(msg);
+        my_print(msg);
 
         /* Status */
-        my_printf(", Status: ");
-        my_printf(get_task_status(g_task_info.tasks[i].status));
+        my_print(", Status: ");
+        my_print(get_task_status(g_task_info.tasks[i].status));
 
-        my_printf("\n");
+        my_print("\n");
     }
 }
 
@@ -342,15 +342,15 @@ static void help_menu(void)
                                        {"endcmd"}};
     int i = 0;
 
-    my_printf("\rAvailable Commands:\n");
+    my_print("\rAvailable Commands:\n");
     while (1) {
         if (strncmp(cmds[i], "endcmd", 6) == 0) {
             break;
         }
 
-        my_printf("\r");
-        my_printf(cmds[i]);
-        my_printf("\n");
+        my_print("\r");
+        my_print(cmds[i]);
+        my_print("\n");
         i++;
     }
 }
@@ -368,7 +368,7 @@ static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
         help_menu();
     }
     else {
-        my_printf("\rCommand not found.\n");
+        my_print("\rCommand not found.\n");
     }
 }
 
@@ -386,7 +386,7 @@ void serial_readwrite_task()
     help_menu();
     while (1) {
         /* Show prompt */
-        my_printf("\r$ ");
+        my_print("\r$ ");
 
         curr_char = 0;
         done = 0;
