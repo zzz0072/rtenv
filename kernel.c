@@ -335,23 +335,25 @@ static void cmd_ps(void)
     }
 }
 
+struct help_item
+{
+    char cmd[MAX_MSG_CHARS];
+    char desc[MAX_MSG_CHARS];
+};
+
 static void help_menu(void)
 {
-    char cmds[][MAX_DESC_CHARS] = {{"ps - list process"},
-                                       {"help - this menu"},
-                                       {"endcmd"}};
+    struct help_item items[] = { {"ps", "List procoss"},
+                                     {"help", "This menu"}};
     int i = 0;
 
     my_print("\rAvailable Commands:\n");
-    while (1) {
-        if (strncmp(cmds[i], "endcmd", 6) == 0) {
-            break;
-        }
-
+    for (i = 0; i < sizeof(items)/sizeof(struct help_item); i++) {
         my_print("\r");
-        my_print(cmds[i]);
+        my_print(items[i].cmd);
+        my_print("\t\t");
+        my_print(items[i].desc);
         my_print("\n");
-        i++;
     }
 }
 
