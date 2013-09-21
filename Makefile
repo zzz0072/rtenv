@@ -11,6 +11,22 @@ STM32_LIB=$(LIBDIR)/libraries/STM32F10x_StdPeriph_Driver
 
 CMSIS_PLAT_SRC = $(CMSIS_LIB)/DeviceSupport/$(VENDOR)/$(PLAT)
 
+SRCS= \
+		$(CMSIS_LIB)/CoreSupport/core_cm3.c \
+		$(CMSIS_PLAT_SRC)/system_stm32f10x.c \
+		$(CMSIS_PLAT_SRC)/startup/gcc_ride7/startup_stm32f10x_md.s \
+		$(STM32_LIB)/src/stm32f10x_rcc.c \
+		$(STM32_LIB)/src/stm32f10x_gpio.c \
+		$(STM32_LIB)/src/stm32f10x_usart.c \
+		$(STM32_LIB)/src/stm32f10x_exti.c \
+		$(STM32_LIB)/src/misc.c \
+		\
+		context_switch.s \
+		syscall.S \
+		stm32_p103.c \
+		kernel.c \
+		memcpy.s
+
 all: main.bin
 
 main.bin: kernel.c context_switch.s syscall.s syscall.h
@@ -26,21 +42,8 @@ main.bin: kernel.c context_switch.s syscall.s syscall.h
 		-mcpu=cortex-m3 -mthumb \
 		-o main.elf \
 		\
-		$(CMSIS_LIB)/CoreSupport/core_cm3.c \
-		$(CMSIS_PLAT_SRC)/system_stm32f10x.c \
-		$(CMSIS_PLAT_SRC)/startup/gcc_ride7/startup_stm32f10x_md.s \
-		$(STM32_LIB)/src/stm32f10x_rcc.c \
-		$(STM32_LIB)/src/stm32f10x_gpio.c \
-		$(STM32_LIB)/src/stm32f10x_usart.c \
-		$(STM32_LIB)/src/stm32f10x_exti.c \
-		$(STM32_LIB)/src/misc.c \
-		\
-		context_switch.s \
-		syscall.S \
-		stm32_p103.c \
-		kernel.c \
-		memcpy.s
-	$(CROSS_COMPILE)objcopy -Obinary main.elf main.bin
+		$(SRCS)
+		$(CROSS_COMPILE)objcopy -Obinary main.elf main.bin
 	$(CROSS_COMPILE)objdump -S main.elf > main.list
 
 qemu: main.bin $(QEMU_STM32)
