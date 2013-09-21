@@ -30,6 +30,8 @@ SRCS= \
 
 ifeq ($(USE_ASM_OPTI_FUNC),YES)
 	SRCS+=memcpy.s
+
+	CFLAGS=-DUSE_ASM_OPTI_FUNC
 endif
 
 all: main.bin
@@ -47,8 +49,9 @@ main.bin: kernel.c context_switch.s syscall.s syscall.h
 		-mcpu=cortex-m3 -mthumb \
 		-o main.elf \
 		\
+		$(CFLAGS) \
 		$(SRCS)
-		$(CROSS_COMPILE)objcopy -Obinary main.elf main.bin
+	$(CROSS_COMPILE)objcopy -Obinary main.elf main.bin
 	$(CROSS_COMPILE)objdump -S main.elf > main.list
 
 qemu: main.bin $(QEMU_STM32)
