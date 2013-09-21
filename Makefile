@@ -4,6 +4,7 @@ QEMU_STM32 ?= ../qemu_stm32/arm-softmmu/qemu-system-arm
 ARCH=CM3
 VENDOR=ST
 PLAT=STM32F10x
+USE_ASM_OPTI_FUNC=YES
 
 LIBDIR = .
 CMSIS_LIB=$(LIBDIR)/libraries/CMSIS/$(ARCH)
@@ -24,8 +25,11 @@ SRCS= \
 		context_switch.s \
 		syscall.S \
 		stm32_p103.c \
-		kernel.c \
-		memcpy.s
+		kernel.c
+
+ifeq ($(USE_ASM_OPTI_FUNC),YES)
+	SRCS+= memcpy.s
+endif
 
 all: main.bin
 
