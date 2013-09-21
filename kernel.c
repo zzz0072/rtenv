@@ -11,7 +11,7 @@
 #define PIPE_BUF   64 /* Size of largest atomic pipe message */
 #define PATH_MAX   32 /* Longest absolute path */
 #define PIPE_LIMIT (TASK_LIMIT * 2)
-#define MAX_DESC_CHARS (32)
+#define MAX_NAME_CHARS (32)
 
 #define PATHSERVER_FD (TASK_LIMIT + 3) 
 /* File descriptor of pipe to pathserver */
@@ -59,7 +59,7 @@ struct task_control_block {
     int pid;
     int status;
     int priority;
-    char desc[MAX_DESC_CHARS];
+    char name[MAX_NAME_CHARS];
     struct task_control_block **prev;
     struct task_control_block  *next;
 };
@@ -326,9 +326,9 @@ static void cmd_ps(void)
         my_print("\tStatus: ");
         my_print(get_task_status(g_task_info.tasks[i].status));
 
-        /* Process description*/
+        /* Process name */
         my_print("\t");
-        my_print(g_task_info.tasks[i].desc);
+        my_print(g_task_info.tasks[i].name);
 
         my_print("\n");
     }
@@ -565,13 +565,13 @@ void _read(struct task_control_block *task, struct task_control_block *tasks, si
     }
 }
 
-static void _copyProcDesc(void *dst, void *src, int char_to_copied)
+static void _copyProcName(void *dst, void *src, int char_to_copied)
 {
     int i = 0;
 
     /* Boundary check */
-    if (char_to_copied > MAX_DESC_CHARS) {
-        char_to_copied = MAX_DESC_CHARS;
+    if (char_to_copied > MAX_NAME_CHARS) {
+        char_to_copied = MAX_NAME_CHARS;
     }
 
     /* Let's copy */
@@ -792,7 +792,7 @@ int main()
     tasks[task_count].pid = 0;
     tasks[task_count].priority = PRIORITY_DEFAULT;
     
-    _copyProcDesc((void *)tasks[task_count].desc, 
+    _copyProcName((void *)tasks[task_count].name,
                     (void *)"Init", 5);
     task_count++;
     
@@ -841,8 +841,8 @@ int main()
                 /* Set priority, inherited from forked task */
                 tasks[task_count].priority = tasks[current_task].priority;
 
-                /* Set description */
-                _copyProcDesc((void *)tasks[task_count].desc,
+                /* Set process name */
+                _copyProcName((void *)tasks[task_count].name,
                                 (void *)tasks[task_count].stack->r0,
                                 strlen((void *)tasks[task_count].stack->r0) + 1);
 
@@ -921,17 +921,17 @@ int main()
             }
             break;
 
-        case SYS_CALL_GET_PROC_DESC:
+        case SYS_CALL_GET_PROC_NAME:
             {
-                _copyProcDesc((void *)tasks[current_task].stack->r0, 
-                                (void *)tasks[current_task].desc,
+                _copyProcName((void *)tasks[current_task].stack->r0,
+                                (void *)tasks[current_task].name,
                                 tasks[current_task].stack->r1);
             } break;
 
-        case SYS_CALL_SET_PROC_DESC:
+        case SYS_CALL_SET_PROC_NAME:
             {
-                _copyProcDesc((void *)tasks[current_task].desc, 
-                                (void *)tasks[current_task].stack->r0, 
+                _copyProcName((void *)tasks[current_task].name,
+                                (void *)tasks[current_task].stack->r0,
                                 tasks[current_task].stack->r1);
             } break;
 

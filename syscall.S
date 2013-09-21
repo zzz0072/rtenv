@@ -88,7 +88,7 @@ sleep:
 .global getProcDesc
 getProcDesc:
     push {r7}
-    mov r7, SYS_CALL_GET_PROC_DESC
+    mov r7, SYS_CALL_GET_PROC_NAME
     svc 0
     nop
     pop {r7}
@@ -97,7 +97,7 @@ getProcDesc:
 .global setProcDesc
 setProcDesc:
     push {r7}
-    mov r7, SYS_CALL_SET_PROC_DESC
+    mov r7, SYS_CALL_SET_PROC_NAME
     svc 0
     nop
     pop {r7}

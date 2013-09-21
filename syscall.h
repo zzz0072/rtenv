@@ -21,7 +21,7 @@ int mknod(int fd, int mode, int dev);
 
 void sleep(unsigned int);
 
-int setProcDesc(const void *proc_descption, size_t count);
-int getProcDesc(void *proc_descption, size_t count);
+int setProcName(const void *proc_name, size_t count);
+int getProcName(void *proc_name, size_t count);
 
 #endif /* SYSCALL_H_20130919 */
