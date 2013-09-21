@@ -375,7 +375,7 @@ static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
 void serial_readwrite_task()
 {
     int fdout, fdin;
-    char str[100];
+    char str[MAX_MSG_CHARS];
     char ch;
     int curr_char;
     int done;
@@ -416,8 +416,8 @@ void serial_readwrite_task()
         if (str[0] == '\n') {
             my_print("\n");
         }
-        else if (strlen(str) < 100) {
-            proc_cmd(fdout, str, curr_char+1+1);
+        else if (strlen(str) < MAX_MSG_CHARS - 1) {
+            proc_cmd(fdout, str, curr_char + 1 + 1);
         }
     }
 }
