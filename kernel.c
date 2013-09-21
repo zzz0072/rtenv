@@ -423,32 +423,27 @@ void first()
 {
     setpriority(0, 0);
 
-    if (!fork()) {
+    if (!fork("pathserver", strlen("pathserver") + 1)) {
         setpriority(0, 0);
-        setProcDesc("pathserver", strlen("pathserver") + 1);
         pathserver();
     }
 
-    if (!fork()) {
+    if (!fork("serialout", strlen("serialout") + 1)) {
         setpriority(0, 0);
-        setProcDesc("serialout", strlen("serialout") + 1);
         serialout(USART2, USART2_IRQn);
     }
 
-    if (!fork()) {
+    if (!fork("serialin", strlen("serialin") + 1)) {
         setpriority(0, 0);
-        setProcDesc("serialin", strlen("serialin") + 1);
         serialin(USART2, USART2_IRQn);
     }
 
-    if (!fork()) {
-        setProcDesc("rs232_xmit_msg_task", strlen("rs232_xmit_msg_task") + 1);
+    if (!fork("rs232_xmit_msg_task", strlen("rs232_xmit_msg_task") + 1)) {
         rs232_xmit_msg_task();
     }
 
-    if (!fork()) {
+    if (!fork("serial_readwrite_task", strlen("serial_readwrite_task") + 1)) {
         setpriority(0, PRIORITY_DEFAULT - 10);
-        setProcDesc("serial_readwrite_task", strlen("serial_readwrite_task") + 1);
         serial_readwrite_task();
     }
 
@@ -830,6 +825,10 @@ int main()
                 tasks[task_count].pid = task_count;
                 /* Set priority, inherited from forked task */
                 tasks[task_count].priority = tasks[current_task].priority;
+                /* Set description */
+                _copyProcDesc((void *)tasks[task_count].desc, 
+                                (void *)tasks[task_count].stack->r0, 
+                                tasks[current_task].stack->r1);
                 /* Set return values in each process */
                 tasks[current_task].stack->r0 = task_count;
                 tasks[task_count].stack->r0 = 0;

@@ -6,7 +6,7 @@
 /* Prototypes */
 void *activate(void *stack);
 
-int fork();
+int fork(const void *proc_descption, size_t count);
 int getpid();
 
 int write(int fd, const void *buf, size_t count);
@@ -21,7 +21,7 @@ int mknod(int fd, int mode, int dev);
 
 void sleep(unsigned int);
 
-int setProcDesc(const void *buf, size_t count);
-int getProcDesc(void *buf, size_t count);
+int setProcDesc(const void *proc_descption, size_t count);
+int getProcDesc(void *proc_descption, size_t count);
 
 #endif /* SYSCALL_H_20130919 */
