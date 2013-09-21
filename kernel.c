@@ -1,7 +1,7 @@
 #include "stm32f10x.h"
 #include "RTOSConfig.h"
 #include "syscall.h"
-#include "util.h"
+#include "str_util.h"
 
 #include <stddef.h>
 

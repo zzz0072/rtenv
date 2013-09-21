@@ -26,7 +26,7 @@ SRCS= \
 		syscall.S \
 		stm32_p103.c \
 		kernel.c \
-		util.c
+		str_util.c
 
 ifeq ($(USE_ASM_OPTI_FUNC),YES)
 	SRCS+=memcpy.s
@@ -36,7 +36,7 @@ endif
 
 all: main.bin
 
-main.bin: $(SRCS) syscall.h util.h
+main.bin: $(SRCS) syscall.h str_util.h
 	$(CROSS_COMPILE)gcc \
 		-Wl,-Tmain.ld -nostartfiles \
 		-I . \
