@@ -361,10 +361,10 @@ static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
     write(out_fd, cmd, cmd_char_num);
 
     /* Lets process command */
-    if (strncmp(cmd, "ps", 2) == 0) {
+    if (strncmp(cmd, "ps\n", 3) == 0) {
         cmd_ps();
     }
-    else if (strncmp(cmd, "help", 4) == 0) {
+    else if (strncmp(cmd, "help\n", 5) == 0) {
         help_menu();
     }
     else {
