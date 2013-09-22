@@ -392,7 +392,7 @@ void serial_readwrite_task()
 {
     int fdout, fdin;
     char str[MAX_MSG_CHARS];
-    char ch;
+    char ch[] = {0x00, 0x00};
     int curr_char;
     int done;
 
@@ -400,22 +400,21 @@ void serial_readwrite_task()
     fdin = open("/dev/tty0/in", 0);
 
     help_menu();
-    my_print("\r");
     while (1) {
         /* Show prompt */
-        my_print("$");
+        my_print("\n\r$ ");
 
         curr_char = 0;
         done = 0;
         do {
             /* Receive a byte from the RS232 port (this call will
              * block). */
-            read(fdin, &ch, 1);
+            read(fdin, &ch[0], 1);
 
             /* If the byte is an end-of-line type character, then
              * finish the string and inidcate we are done.
              */
-            if (curr_char >= 98 || (ch == '\r') || (ch == '\n')) {
+            if (curr_char >= 98 || (ch[0] == '\r') || (ch[0] == '\n')) {
                 str[curr_char] = '\n';
                 str[curr_char+1] = '\0';
                 done = -1;
@@ -423,8 +422,8 @@ void serial_readwrite_task()
                  * response string. */
             }
             else {
-                str[curr_char++] = ch;
-                write(fdout, &ch, 1);
+                str[curr_char++] = ch[0];
+                write(fdout, ch, 2);
             }
         } while (!done);
 
@@ -435,7 +434,6 @@ void serial_readwrite_task()
         if (strlen(str) < MAX_MSG_CHARS - 1 && str[0] != '\n') {
             proc_cmd(fdout, str, curr_char + 1 + 1);
         }
-        my_print("\r\n");
     }
 }
 
