@@ -374,7 +374,6 @@ static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
 {
     int i = 0;
 
-    my_print("\n");
     /* Lets process command */
     for (i = 0; i < sizeof(available_cmds)/sizeof(cmd_entry); i++) {
         if (strncmp(cmd, available_cmds[i].name, strlen(available_cmds[i].name)) == 0) {
@@ -401,9 +400,10 @@ void serial_readwrite_task()
     fdin = open("/dev/tty0/in", 0);
 
     help_menu();
+    my_print("\r");
     while (1) {
         /* Show prompt */
-        my_print("\r$ ");
+        my_print("$");
 
         curr_char = 0;
         done = 0;
@@ -411,7 +411,6 @@ void serial_readwrite_task()
             /* Receive a byte from the RS232 port (this call will
              * block). */
             read(fdin, &ch, 1);
-            write(fdout, &ch, 1);
 
             /* If the byte is an end-of-line type character, then
              * finish the string and inidcate we are done.
@@ -425,18 +424,18 @@ void serial_readwrite_task()
             }
             else {
                 str[curr_char++] = ch;
+                write(fdout, &ch, 1);
             }
         } while (!done);
 
         /* Once we are done building the response string, queue the
          * response to be sent to the RS232 port.
          */
-        if (str[0] == '\n') {
-            my_print("\n");
-        }
-        else if (strlen(str) < MAX_MSG_CHARS - 1) {
+        my_print("\n");
+        if (strlen(str) < MAX_MSG_CHARS - 1 && str[0] != '\n') {
             proc_cmd(fdout, str, curr_char + 1 + 1);
         }
+        my_print("\r\n");
     }
 }
 
