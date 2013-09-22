@@ -421,6 +421,14 @@ void serial_readwrite_task()
                 /* Otherwise, add the character to the
                  * response string. */
             }
+            else if(ch[0] == 127) { /* backspace */
+                if(curr_char > 0) {
+                    curr_char--;
+                    write(fdout, "\b", 1);
+                    write(fdout, " ", 1);
+                    write(fdout, "\b", 1);
+                }
+            }
             else {
                 str[curr_char++] = ch[0];
                 write(fdout, ch, 2);
