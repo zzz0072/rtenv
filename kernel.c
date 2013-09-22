@@ -333,42 +333,60 @@ static void cmd_ps(void)
     }
 }
 
-struct help_item
+typedef void (*cmd_func_t)(void);
+struct cmd_t
 {
-    char cmd[MAX_MSG_CHARS];
-    char desc[MAX_MSG_CHARS];
+    char *name;
+    char *desc;
+    cmd_func_t handler;
+};
+
+static void help_menu(void);
+typedef struct cmd_t cmd_entry;
+static cmd_entry available_cmds[] = {
+        {
+            .name = "ps",
+            .desc = "List process",
+            .handler = cmd_ps
+        },
+        {
+            .name = "help",
+            .desc = "This menu",
+            .handler = help_menu
+        }
 };
 
 static void help_menu(void)
 {
-    struct help_item items[] = { {"ps", "List procoss"},
-                                     {"help", "This menu"}};
     int i = 0;
 
     my_print("\rAvailable Commands:\n");
-    for (i = 0; i < sizeof(items)/sizeof(struct help_item); i++) {
+    for (i = 0; i < sizeof(available_cmds)/sizeof(cmd_entry); i++) {
         my_print("\r");
-        my_print(items[i].cmd);
+        my_print(available_cmds[i].name);
         my_print("\t\t");
-        my_print(items[i].desc);
+        my_print(available_cmds[i].desc);
         my_print("\n");
     }
 }
 
 static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
 {
-    my_print("\n");
+    int i = 0;
 
+    my_print("\n");
     /* Lets process command */
-    if (strncmp(cmd, "ps\n", 3) == 0) {
-        cmd_ps();
+    for (i = 0; i < sizeof(available_cmds)/sizeof(cmd_entry); i++) {
+        if (strncmp(cmd, available_cmds[i].name, strlen(available_cmds[i].name)) == 0) {
+            /* Avoid subset case -> valid cmd: "ps" vs user input: "ps1" */
+            if (cmd[strlen(available_cmds[i].name)] != '\n' ) {
+                continue;
+            }
+            available_cmds[i].handler();
+            return;
+        }
     }
-    else if (strncmp(cmd, "help\n", 5) == 0) {
-        help_menu();
-    }
-    else {
-        my_print("\rCommand not found.\n");
-    }
+    my_print("\rCommand not found.\n");
 }
 
 void serial_readwrite_task()
