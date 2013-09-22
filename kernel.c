@@ -357,8 +357,7 @@ static void help_menu(void)
 
 static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
 {
-    /* Dump command first */
-    write(out_fd, cmd, cmd_char_num);
+    my_print("\n");
 
     /* Lets process command */
     if (strncmp(cmd, "ps\n", 3) == 0) {
@@ -394,6 +393,7 @@ void serial_readwrite_task()
             /* Receive a byte from the RS232 port (this call will
              * block). */
             read(fdin, &ch, 1);
+            write(fdout, &ch, 1);
 
             /* If the byte is an end-of-line type character, then
              * finish the string and inidcate we are done.
