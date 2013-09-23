@@ -29,6 +29,8 @@
 
 #define O_CREAT 4
 
+#define BACK_SPACE (127)
+
 /* Stack struct of user thread, see "Exception entry and return" */
 struct user_thread_stack {
     unsigned int r4;
@@ -406,7 +408,7 @@ void serial_readwrite_task()
 
         curr_char = 0;
         done = 0;
-        do {
+        while(1) {
             /* Receive a byte from the RS232 port (this call will
              * block). */
             read(fdin, &ch[0], 1);
@@ -417,11 +419,9 @@ void serial_readwrite_task()
             if (curr_char >= 98 || (ch[0] == '\r') || (ch[0] == '\n')) {
                 str[curr_char] = '\n';
                 str[curr_char+1] = '\0';
-                done = -1;
-                /* Otherwise, add the character to the
-                 * response string. */
+                break;
             }
-            else if(ch[0] == 127) { /* backspace */
+            else if(ch[0] == BACK_SPACE) { /* backspace */
                 if(curr_char > 0) {
                     curr_char--;
                     write(fdout, "\b", 1);
@@ -430,10 +430,14 @@ void serial_readwrite_task()
                 }
             }
             else {
-                str[curr_char++] = ch[0];
-                write(fdout, ch, 2);
+                /* Appends only when buffer is not full.
+               * Include \n\0*/
+                if (curr_char < (MAX_MSG_CHARS - 3)) {
+                    str[curr_char++] = ch[0];
+                    write(fdout, ch, 2);
+                }
             }
-        } while (!done);
+        }
 
         /* Once we are done building the response string, queue the
          * response to be sent to the RS232 port.
