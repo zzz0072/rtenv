@@ -25,51 +25,30 @@ int strncmp(const char *str_a, const char *str_b, size_t n)
     return 0;
 }
 
-int intToString(int num, char *str_num, int str_buf_bytes)
+char* itoa(int val)
 {
-    char* curr_str_pos = str_num;
-    int   digits;
+    static char buf[32] = { 0 };
+    char has_minus = 0;
+    int i = 30;
 
-    /* Regular check */
-    if (!str_num) {
-        return RT_ERR;
+    if (val == 0) {
+        buf[1] = '0';
+        return &buf[1];
     }
 
-    /* Special case: 0 */
-    if (!num) {
-        *curr_str_pos       = '0';
-        *(curr_str_pos + 1) = 0;
-        return RT_OK;
+    if (val < 0) {
+        val = val * -1;
+        has_minus = 1;
     }
 
-    /* Negative number case */
-    if (num < 0) {
-        *curr_str_pos = '-';
-        curr_str_pos++;
-        num = -1 * num;
+    for (; val && (i - 1) ; --i, val /= 10)
+        buf[i] = "0123456789"[val % 10];
+
+    if (has_minus) {
+        buf[i] = '-';
+        return &buf[i];
     }
-    digits = num;
-
-    /* How any digits we need? */
-    while (digits) {
-        digits = digits / 10;
-        curr_str_pos++;
-
-        /* Buffer full? */
-        if ((int)(curr_str_pos - str_num) >=  str_buf_bytes) {
-            return RT_ERR;
-        }
-    }
-
-    /* Convert digit by digit */
-    *curr_str_pos = 0;
-    while (num) {
-        curr_str_pos--;
-        *curr_str_pos = (num % 10) + 0x30;
-        num = num / 10;
-    }
-
-    return RT_OK;
+    return &buf[i + 1];
 }
 
 void my_print(char *msg)

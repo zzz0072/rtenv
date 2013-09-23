@@ -15,6 +15,6 @@ size_t strlen(const char *s);
 int    strcmp(const char *a, const char *b);
 int    strncmp(const char *a, const char *b, size_t n);
 
-int intToString(int num, char *str_num, int str_buf_bytes);
+char* itoa(int val);
 
 #endif /* UTIL_H_20130921 */

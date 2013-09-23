@@ -315,13 +315,11 @@ static void cmd_ps(void)
     for (i = 0; i < *(g_task_info.task_amount); i++) {
         /* PID */
         my_print("\rPID: ");
-        intToString(g_task_info.tasks[i].pid, msg, MAX_MSG_CHARS);
-        my_print(msg);
+        my_print(itoa(g_task_info.tasks[i].pid));
 
         /* Priority */
         my_print("\tPriority: ");
-        intToString(g_task_info.tasks[i].priority , msg, MAX_MSG_CHARS);
-        my_print(msg);
+        my_print(itoa(g_task_info.tasks[i].priority));
 
         /* Status */
         my_print("\tStatus: ");
