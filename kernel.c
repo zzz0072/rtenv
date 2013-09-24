@@ -30,6 +30,7 @@
 #define O_CREAT 4
 
 #define BACK_SPACE (127)
+#define ESC        (27)
 
 /* Stack struct of user thread, see "Exception entry and return" */
 struct user_thread_stack {
@@ -417,6 +418,22 @@ void serial_readwrite_task()
                 str[curr_char] = '\n';
                 str[curr_char+1] = '\0';
                 break;
+            }
+            else if(ch[0] == ESC) { /* Terminal control characters */
+                /* Direction key: ESC[A ~ ESC[D */
+                read(fdin, &ch[0], 1);
+                read(fdin, &ch[0], 1);
+
+                /* Page up:   ESC[5~ 
+                 * Page down: ESC[6~ */
+                if (ch[0] == '5' || ch[0] == '6') {
+                    read(fdin, &ch[0], 1);
+                }
+                continue;
+            }
+            /* Skip control characters. man ascii for more information */
+            else if (ch[0] < 0x20) {
+                continue;
             }
             else if(ch[0] == BACK_SPACE) { /* backspace */
                 if(curr_char > 0) {
