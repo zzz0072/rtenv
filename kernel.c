@@ -394,7 +394,6 @@ void serial_readwrite_task()
     char str[MAX_MSG_CHARS];
     char ch[] = {0x00, 0x00};
     int curr_char;
-    int done;
 
     fdout = mq_open("/tmp/mqueue/out", 0);
     fdin = open("/dev/tty0/in", 0);
@@ -405,7 +404,6 @@ void serial_readwrite_task()
         my_print("\n\r$ ");
 
         curr_char = 0;
-        done = 0;
         while(1) {
             /* Receive a byte from the RS232 port (this call will
              * block). */
