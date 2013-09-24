@@ -29,7 +29,7 @@
 
 #define O_CREAT 4
 
-#define BACK_SPACE (127)
+#define BACKSPACE (127)
 #define ESC        (27)
 
 /* Stack struct of user thread, see "Exception entry and return" */
@@ -435,7 +435,7 @@ void serial_readwrite_task()
             else if (ch[0] < 0x20) {
                 continue;
             }
-            else if(ch[0] == BACK_SPACE) { /* backspace */
+            else if(ch[0] == BACKSPACE) { /* backspace */
                 if(curr_char > 0) {
                     curr_char--;
                     write(fdout, "\b \b", 4);
