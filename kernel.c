@@ -420,9 +420,7 @@ void serial_readwrite_task()
             else if(ch[0] == BACK_SPACE) { /* backspace */
                 if(curr_char > 0) {
                     curr_char--;
-                    write(fdout, "\b", 1);
-                    write(fdout, " ", 1);
-                    write(fdout, "\b", 1);
+                    write(fdout, "\b \b", 4);
                 }
             }
             else {
