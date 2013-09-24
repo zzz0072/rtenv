@@ -375,6 +375,7 @@ static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
     int i = 0;
 
     /* Lets process command */
+    my_print("\n");
     for (i = 0; i < sizeof(available_cmds)/sizeof(cmd_entry); i++) {
         if (strncmp(cmd, available_cmds[i].name, strlen(available_cmds[i].name)) == 0) {
             /* Avoid subset case -> valid cmd: "ps" vs user input: "ps1" */
@@ -436,7 +437,6 @@ void serial_readwrite_task()
         /* Once we are done building the response string, queue the
          * response to be sent to the RS232 port.
          */
-        my_print("\n");
         if (strlen(str) < MAX_MSG_CHARS - 1 && str[0] != '\n') {
             proc_cmd(fdout, str, curr_char + 1 + 1);
         }
