@@ -32,6 +32,9 @@
 #define BACKSPACE (127)
 #define ESC        (27)
 
+#define RT_NO  (0)
+#define RT_YES (1)
+
 /* Stack struct of user thread, see "Exception entry and return" */
 struct user_thread_stack {
     unsigned int r4;
@@ -355,6 +358,7 @@ void serial_readwrite_task()
     int fdout, fdin;
     char str[MAX_MSG_CHARS];
     char ch[] = {0x00, 0x00};
+    char last_char_is_ESC = RT_NO;
     int curr_char;
 
     fdout = mq_open("/tmp/mqueue/out", 0);
@@ -371,6 +375,27 @@ void serial_readwrite_task()
              * block). */
             read(fdin, &ch[0], 1);
 
+            /* Hanld ESC case first */
+            if (last_char_is_ESC == RT_YES) {
+                last_char_is_ESC = RT_NO;
+
+                if (ch[0] == '[') {
+                    /* Direction key: ESC[A ~ ESC[D */
+                    read(fdin, &ch[0], 1);
+
+                    /* Home:      ESC[1~
+                     * End:       ESC[2~
+                     * Insert:    ESC[3~
+                     * Delete:    ESC[4~
+                     * Page up:   ESC[5~
+                     * Page down: ESC[6~ */
+                    if (ch[0] >= '1' && ch[0] <= '6') {
+                        read(fdin, &ch[0], 1);
+                    }
+                    continue;
+                }
+            }
+
             /* If the byte is an end-of-line type character, then
              * finish the string and inidcate we are done.
              */
@@ -379,17 +404,8 @@ void serial_readwrite_task()
                 str[curr_char+1] = '\0';
                 break;
             }
-            else if(ch[0] == ESC) { /* Terminal control characters */
-                /* Direction key: ESC[A ~ ESC[D */
-                read(fdin, &ch[0], 1);
-                read(fdin, &ch[0], 1);
-
-                /* Page up:   ESC[5~ 
-                 * Page down: ESC[6~ */
-                if (ch[0] == '5' || ch[0] == '6') {
-                    read(fdin, &ch[0], 1);
-                }
-                continue;
+            else if(ch[0] == ESC) {
+                last_char_is_ESC = RT_YES;
             }
             /* Skip control characters. man ascii for more information */
             else if (ch[0] < 0x20) {
