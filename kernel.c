@@ -276,30 +276,6 @@ void rs232_xmit_msg_task()
     }
 }
 
-void queue_str_task(const char *str, int delay)
-{
-    int fdout = mq_open("/tmp/mqueue/out", 0);
-    int msg_len = strlen(str) + 1;
-
-    while (1) {
-        /* Post the message.  Keep on trying until it is successful. */
-        write(fdout, str, msg_len);
-
-        /* Wait. */
-        sleep(delay);
-    }
-}
-
-void queue_str_task1()
-{
-    queue_str_task("Hello 1\n", 200);
-}
-
-void queue_str_task2()
-{
-    queue_str_task("Hello 2\n", 50);
-}
-
 static void cmd_ps(void)
 {
     int i = 0;
