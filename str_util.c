@@ -97,6 +97,14 @@ void my_printf(const char *fmt_str, ...)
                         }
                         break;
 
+                    case 'X':
+                    case 'x':
+                        {
+                           param_int     = va_arg(param, int);
+                           str_to_output = htoa(param_int);
+                        }
+                        break;
+
                     case 'c':
                     case 'C':
                         {
@@ -104,6 +112,7 @@ void my_printf(const char *fmt_str, ...)
                             str_to_output = param_chr;
                             break;
                         }
+
                     default:
                         {
                             param_chr[0]  = fmt_str[curr_char];
