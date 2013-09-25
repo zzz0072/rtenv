@@ -232,29 +232,6 @@ void serialin(USART_TypeDef* uart, unsigned int intr)
     }
 }
 
-void greeting()
-{
-    int fdout = open("/dev/tty0/out", 0);
-    char *string = "Hello, World!\n";
-    while (*string) {
-        write(fdout, string, 1);
-        string++;
-    }
-}
-
-void echo()
-{
-    int fdout, fdin;
-    char c;
-    fdout = open("/dev/tty0/out", 0);
-    fdin = open("/dev/tty0/in", 0);
-
-    while (1) {
-        read(fdin, &c, 1);
-        write(fdout, &c, 1);
-    }
-}
-
 void rs232_xmit_msg_task()
 {
     int fdout, fdin;
