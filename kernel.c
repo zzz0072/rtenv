@@ -305,7 +305,7 @@ static void cmd_ps(void)
     int i = 0;
     char msg[MAX_MSG_CHARS];
 
-    my_print("\rList process\n");
+    my_printf("\rList process\n");
 
     /* This should not happen actually */
     if (!g_task_info.tasks) {
@@ -349,7 +349,7 @@ static void help_menu(void)
 {
     int i = 0;
 
-    my_print("\rAvailable Commands:\n");
+    my_printf("\rAvailable Commands:\n");
     for (i = 0; i < sizeof(available_cmds)/sizeof(cmd_entry); i++) {
         my_printf("\r%s\t\t%s\n", available_cmds[i].name, available_cmds[i].desc);
     }
@@ -360,7 +360,7 @@ static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
     int i = 0;
 
     /* Lets process command */
-    my_print("\n");
+    my_printf("\n");
     for (i = 0; i < sizeof(available_cmds)/sizeof(cmd_entry); i++) {
         if (strncmp(cmd, available_cmds[i].name, strlen(available_cmds[i].name)) == 0) {
             /* Avoid subset case -> valid cmd: "ps" vs user input: "ps1" */
@@ -371,7 +371,7 @@ static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
             return;
         }
     }
-    my_print("\rCommand not found.\n");
+    my_printf("\rCommand not found.\n");
 }
 
 void serial_readwrite_task()
@@ -387,7 +387,7 @@ void serial_readwrite_task()
     help_menu();
     while (1) {
         /* Show prompt */
-        my_print("\n\r$ ");
+        my_printf("\n\r$ ");
 
         curr_char = 0;
         while(1) {
@@ -422,7 +422,7 @@ void serial_readwrite_task()
             else if(ch[0] == BACKSPACE) { /* backspace */
                 if(curr_char > 0) {
                     curr_char--;
-                    my_print("\b \b");
+                    my_printf("\b \b");
                 }
             }
             else {
@@ -430,7 +430,7 @@ void serial_readwrite_task()
                * Include \n\0*/
                 if (curr_char < (MAX_MSG_CHARS - 3)) {
                     str[curr_char++] = ch[0];
-                    my_print(ch);
+                    my_puts(ch);
                 }
             }
         }

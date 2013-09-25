@@ -3,16 +3,6 @@
 #include "stm32f10x.h"
 #include "RTOSConfig.h"
 
-void my_puts(char *s)
-{
-    while (*s) {
-        while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET)
-            /* wait */ ;
-        USART_SendData(USART2, *s);
-        s++;
-    }
-}
-
 /* Hand made tools */
 int strncmp(const char *str_a, const char *str_b, size_t n)
 {
@@ -52,7 +42,7 @@ char* itoa(int val)
     return &buf[i + 1];
 }
 
-void my_print(char *msg)
+void my_puts(char *msg)
 {
     int fdout = mq_open("/tmp/mqueue/out", 0);
 
@@ -118,7 +108,7 @@ void my_printf(const char *fmt_str, ...)
                 } /* switch (fmt_str[curr_char])      */
                 curr_char++;
             }     /* if (fmt_str[curr_char++] == '%') */
-            my_print(str_to_output);
+            my_puts(str_to_output);
         }         /* while (fmt_str[curr_char])       */
     }
     va_end(param);
