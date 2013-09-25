@@ -314,23 +314,11 @@ static void cmd_ps(void)
 
     /* Start list */
     for (i = 0; i < *(g_task_info.task_amount); i++) {
-        /* PID */
-        my_print("\rPID: ");
-        my_print(itoa(g_task_info.tasks[i].pid));
-
-        /* Priority */
-        my_print("\tPriority: ");
-        my_print(itoa(g_task_info.tasks[i].priority));
-
-        /* Status */
-        my_print("\tStatus: ");
-        my_print(get_task_status(g_task_info.tasks[i].status));
-
-        /* Process name */
-        my_print("\t");
-        my_print(g_task_info.tasks[i].name);
-
-        my_print("\n");
+        my_printf("\rPID: %d\tPriority: %d\tStatus: %s\t%s\n",
+                    g_task_info.tasks[i].pid,
+                    g_task_info.tasks[i].priority,
+                    get_task_status(g_task_info.tasks[i].status),
+                    g_task_info.tasks[i].name);
     }
 }
 
@@ -363,11 +351,7 @@ static void help_menu(void)
 
     my_print("\rAvailable Commands:\n");
     for (i = 0; i < sizeof(available_cmds)/sizeof(cmd_entry); i++) {
-        my_print("\r");
-        my_print(available_cmds[i].name);
-        my_print("\t\t");
-        my_print(available_cmds[i].desc);
-        my_print("\n");
+        my_printf("\r%s\t\t%s\n", available_cmds[i].name, available_cmds[i].desc);
     }
 }
 
@@ -438,7 +422,7 @@ void serial_readwrite_task()
             else if(ch[0] == BACKSPACE) { /* backspace */
                 if(curr_char > 0) {
                     curr_char--;
-                    write(fdout, "\b \b", 4);
+                    my_print("\b \b");
                 }
             }
             else {
@@ -446,7 +430,7 @@ void serial_readwrite_task()
                * Include \n\0*/
                 if (curr_char < (MAX_MSG_CHARS - 3)) {
                     str[curr_char++] = ch[0];
-                    write(fdout, ch, 2);
+                    my_print(ch);
                 }
             }
         }

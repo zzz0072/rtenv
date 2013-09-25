@@ -1,3 +1,4 @@
+#include <stdarg.h> /* For variable list */
 #include "str_util.h"
 #include "stm32f10x.h"
 #include "RTOSConfig.h"
@@ -60,6 +61,67 @@ void my_print(char *msg)
     }
 
     write(fdout, msg, strlen(msg) + 1);
+}
+
+void my_printf(const char *fmt_str, ...)
+{
+    va_list param = {0};
+    int fdout = mq_open("/tmp/mqueue/out", 0);
+
+    va_start(param, fmt_str);
+    {
+        char *param_str = 0;
+        char  param_chr[] = {0, 0}; 
+        int   param_int = 0;
+
+        char *str_to_output = 0;
+        int   curr_char  = 0;
+
+        /* Let's parse */
+        while (fmt_str[curr_char]) {
+            /* Deal with normal string
+             * increase index by 1 here  */
+            if (fmt_str[curr_char++] != '%') {
+                param_chr[0]  = fmt_str[curr_char - 1];
+                str_to_output = param_chr;
+            }
+            /* % case-> retrive latter params */
+            else {
+                switch (fmt_str[curr_char]) {
+                    case 'S':
+                    case 's':
+                        {
+                            str_to_output = va_arg(param, char *);
+                        }
+                        break;
+
+                    case 'd':
+                    case 'D':
+                        {
+                           param_int     = va_arg(param, int);
+                           str_to_output = itoa(param_int);
+                        }
+                        break;
+
+                    case 'c':
+                    case 'C':
+                        {
+                            param_chr[0]  = (char) va_arg(param, int);
+                            str_to_output = param_chr;
+                            break;
+                        }
+                    default:
+                        {
+                            param_chr[0]  = fmt_str[curr_char];
+                            str_to_output = param_chr;
+                        }
+                } /* switch (fmt_str[curr_char])      */
+                curr_char++;
+            }     /* if (fmt_str[curr_char++] == '%') */
+            my_print(str_to_output);
+        }         /* while (fmt_str[curr_char])       */
+    }
+    va_end(param);
 }
 
 #ifndef USE_ASM_OPTI_FUNC

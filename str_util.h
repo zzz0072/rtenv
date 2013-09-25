@@ -9,7 +9,9 @@
 
 void *memcpy(void *dest, const void *src, size_t n);
 void  my_puts(char *s);
-void  my_printf(char *msg);
+void  my_print(char *msg);
+void  my_printf(const char *fmt_str, ...);
+
 
 size_t strlen(const char *s);
 int    strcmp(const char *a, const char *b);
