@@ -103,4 +103,4 @@ qemuauto_remote: main.bin gdbscript
 	sleep 5
 
 clean:
-	rm -f *.elf *.bin *.list syscall.s
+	rm -f *.elf *.bin *.list
