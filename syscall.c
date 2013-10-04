@@ -5,7 +5,7 @@
 #define TO_STR(VAR) ENCLOSE_QUOTE(VAR)
 
 #define SYS_CALL_BODY(ACT) \
-    asm( \
+    __asm__( \
       "push {r7}\n" \
       "mov r7," ACT "\n"\
       "svc 0\n"\
