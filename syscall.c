@@ -113,36 +113,33 @@ int hostCall(enum HOST_SYSCALL action, void *arg)
  * http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0471c/Bgbjhiea.html */
 int host_open(const char *pathname, int flags)
 {
-    param semi_param[3];
-
-    /* Setting param */
-    semi_param[0].pdChrPtr = (char *) pathname;
-    semi_param[1].pdInt    = flags;
-    semi_param[2].pdInt    = strlen(pathname);
+    param semi_param[3] = {
+        { .pdChrPtr = (char *) pathname },
+        { .pdInt    = flags },
+        { .pdInt    = strlen(pathname) }
+    };
 
     return hostCall(HOSTCALL_OPEN, semi_param);
 }
 
 size_t host_read(int fd, void *buf, size_t count)
 {
-    param semi_param[3];
-
-    /* Setting param */
-    semi_param[0].pdInt = fd;
-    semi_param[1].pdPtr = buf;
-    semi_param[2].pdInt = count;
+    param semi_param[3] = {
+        { .pdInt = fd },
+        { .pdPtr = buf },
+        { .pdInt = count }
+    };
 
     return hostCall(HOSTCALL_READ, semi_param);
 }
 
 size_t host_write(int fd, const void *buf, size_t count)
 {
-    param semi_param[3];
-
-    /* Setting param */
-    semi_param[0].pdInt = fd;
-    semi_param[1].pdPtr = (void *) buf;
-    semi_param[2].pdInt = count;
+    param semi_param[3] = {
+        { .pdInt = fd },
+        { .pdPtr = (void *) buf },
+        { .pdInt = count }
+    };
 
     return hostCall(HOSTCALL_WRITE, semi_param);
 }
