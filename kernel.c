@@ -12,7 +12,7 @@
 #define PIPE_LIMIT (TASK_LIMIT * 2)
 #define MAX_NAME_CHARS (32)
 
-#define PATHSERVER_FD (TASK_LIMIT + 3) 
+#define PATHSERVER_FD (TASK_LIMIT + 3)
 /* File descriptor of pipe to pathserver */
 
 #define PRIORITY_DEFAULT 20
@@ -94,7 +94,7 @@ static char *get_task_status(int status)
     }
 }
 
-/* 
+/*
  * pathserver assumes that all files are FIFOs that were registered
  * with mkfifo.  It also assumes a global tables of FDs shared by all
  * processes.  It would have to get much smarter to be generally useful.
@@ -503,7 +503,7 @@ task_push (struct task_control_block **list, struct task_control_block *item)
             *(item->prev) = item->next;
         if (item->next)
             item->next->prev = item->prev;
- 
+
         /* Insert into new list */
         while (*list) list = &((*list)->next);
         *list = item;
@@ -679,7 +679,7 @@ fifo_writable (struct pipe_ringbuffer *pipe,
         task->stack->r0 = -1;
         return 0;
     }
- 
+
     /* Preserve 1 byte to distiguish empty or full */
     if ((size_t)PIPE_BUF - PIPE_LEN(*pipe) - 1 < task->stack->r2) {
         /* Trying to write more than we have space for: block */
@@ -784,11 +784,11 @@ int main()
     tasks[task_count].stack = (void*)init_task(stacks[task_count], &first);
     tasks[task_count].pid = 0;
     tasks[task_count].priority = PRIORITY_DEFAULT;
-    
+
     _copyProcName((void *)tasks[task_count].name,
                     (void *)"Init", 5);
     task_count++;
-    
+
     /* dirty global tasks */
     g_task_info.tasks = tasks;
     g_task_info.task_amount = &task_count;
