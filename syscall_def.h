@@ -28,7 +28,7 @@ enum File_Type_t {
     OPEN_APPEND,
     OPEN_APPEND_BIN,
     OPEN_APPEND_ONLY,
-    OPEN_APPEND_ONLY_BIN,
+    OPEN_APPEND_ONLY_BIN
 };
 
 /* Referred to:
@@ -55,7 +55,7 @@ enum HOST_SYSCALL {
     HOSTCALL_GET_CMDLINE = 0x15,
     HOSTCALL_HEAPINFO    = 0x16,
     HOSTCALL_ELAPSED     = 0x30,
-    HOSTCALL_TICKFREQ    = 0x31,
+    HOSTCALL_TICKFREQ    = 0x31
 };
 #endif /* USE_SEMIHOST */
 #endif /* SYSCALL_DEF_H_20130919 */
