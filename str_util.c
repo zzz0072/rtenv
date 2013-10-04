@@ -1,7 +1,9 @@
 #include <stdarg.h> /* For variable list */
 #include "str_util.h"
-#include "stm32f10x.h"
-#include "RTOSConfig.h"
+#include "syscall.h"
+
+/* TODO: Modulize kernel.c */
+extern int mq_open(const char *name, int oflag);
 
 /* Hand made tools */
 int strncmp(const char *str_a, const char *str_b, size_t n)
@@ -61,13 +63,11 @@ void my_printf(const char *fmt_str, ...)
 {
     va_list param = {0};
 
-    char *param_str = 0;
     char  param_chr[] = {0, 0}; 
     int   param_int = 0;
 
     char *str_to_output = 0;
     int   curr_char  = 0;
-    int   fdout = mq_open("/tmp/mqueue/out", 0);
 
     va_start(param, fmt_str);
 

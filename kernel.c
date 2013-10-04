@@ -1,4 +1,5 @@
 #include "stm32f10x.h"
+#include "stm32_p103.h"
 #include "RTOSConfig.h"
 #include "syscall.h"
 #include "str_util.h"
@@ -71,7 +72,7 @@ struct task_control_block {
 
 struct task_info {
     struct task_control_block *tasks;
-    int *task_amount;
+    unsigned int *task_amount;
 };
 
 static struct task_info g_task_info;
@@ -259,7 +260,6 @@ void rs232_xmit_msg_task()
 static void cmd_ps(void)
 {
     int i = 0;
-    char msg[MAX_MSG_CHARS];
 
     my_printf("\rList process\n");
 
@@ -560,8 +560,6 @@ void _read(struct task_control_block *task, struct task_control_block *tasks, si
 
 static void _copyProcName(void *dst, void *src, int char_to_copied)
 {
-    int i = 0;
-
     /* Boundary check */
     if (char_to_copied > MAX_NAME_CHARS) {
         char_to_copied = MAX_NAME_CHARS;

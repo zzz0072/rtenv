@@ -113,7 +113,7 @@ int hostCall(enum HOST_SYSCALL action, void *arg)
  * http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0471c/Bgbjhiea.html */
 int host_open(const char *pathname, int flags)
 {
-    param semi_param[3] = {0};
+    param semi_param[3];
 
     /* Setting param */
     semi_param[0].pdChrPtr = (char *) pathname;
@@ -125,7 +125,7 @@ int host_open(const char *pathname, int flags)
 
 size_t host_read(int fd, void *buf, size_t count)
 {
-    param semi_param[3] = {0};
+    param semi_param[3];
 
     /* Setting param */
     semi_param[0].pdInt = fd;
@@ -137,7 +137,7 @@ size_t host_read(int fd, void *buf, size_t count)
 
 size_t host_write(int fd, const void *buf, size_t count)
 {
-    param semi_param[3] = {0};
+    param semi_param[3];
 
     /* Setting param */
     semi_param[0].pdInt = fd;
