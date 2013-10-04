@@ -352,7 +352,7 @@ void serial_readwrite_task()
              * block). */
             read(fdin, &ch[0], 1);
 
-            /* Hanld ESC case first */
+            /* Handle ESC case first */
             if (last_char_is_ESC == RT_YES) {
                 last_char_is_ESC = RT_NO;
 
