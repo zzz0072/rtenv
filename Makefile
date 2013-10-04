@@ -1,15 +1,21 @@
+# Variables
 CROSS_COMPILE=arm-none-eabi-
 QEMU_STM32 ?= ../qemu_stm32/arm-softmmu/qemu-system-arm
 
 ARCH=CM3
 VENDOR=ST
 PLAT=STM32F10x
-USE_ASM_OPTI_FUNC=YES
 
+# Build options
+USE_ASM_OPTI_FUNC=YES
+USE_SEMIHOST=YES
+
+# PATH
 LIBDIR = .
 CMSIS_LIB=$(LIBDIR)/libraries/CMSIS/$(ARCH)
 STM32_LIB=$(LIBDIR)/libraries/STM32F10x_StdPeriph_Driver
 
+# Sources
 CMSIS_PLAT_SRC = $(CMSIS_LIB)/DeviceSupport/$(VENDOR)/$(PLAT)
 
 CMSIS_SRCS = \
@@ -33,10 +39,16 @@ SRCS= \
 		kernel.c \
 		str_util.c
 
+# Flags
 ifeq ($(USE_ASM_OPTI_FUNC),YES)
 	SRCS+=memcpy.s
 
 	CFLAGS=-DUSE_ASM_OPTI_FUNC
+endif
+
+ifeq ($(USE_SEMIHOST),YES)
+	CFLAGS+=-DUSE_SEMIHOST
+	QEMU_PARAM=-semihosting
 endif
 
 all: main.bin
@@ -60,7 +72,7 @@ main.bin: $(SRCS) syscall.h str_util.h
 	$(CROSS_COMPILE)objdump -S main.elf > main.list
 
 qemu: main.bin $(QEMU_STM32)
-	$(QEMU_STM32) -M stm32-p103 -kernel main.bin -monitor null
+	$(QEMU_STM32) -M stm32-p103 -kernel main.bin -monitor null $(QEMU_PARAM)
 
 qemudbg: main.bin $(QEMU_STM32)
 	$(QEMU_STM32) -M stm32-p103 \

@@ -1,4 +1,5 @@
 #include "syscall_def.h"
+#include "str_util.h"
 #include <stddef.h>
 
 #define ENCLOSE_QUOTE(VAR) #VAR
@@ -81,3 +82,74 @@ int getProcName(void *proc_name, size_t count)
 {
     SYS_CALL_BODY(TO_STR(SYS_CALL_SET_PROC_NAME));
 }
+
+#ifdef USE_SEMIHOST
+/* Semihost system call parameters */
+union param_t
+{
+    int   pdInt;
+    void *pdPtr;
+    char *pdChrPtr;
+};
+
+typedef union param_t param;
+int hostCall(enum HOST_SYSCALL action, void *arg) __attribute__ ((naked));
+int hostCall(enum HOST_SYSCALL action, void *arg)
+{
+    /* For Thumb-2 code use the BKPT instruction instead of SWI.
+     * Refer to:
+     * http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0471c/Bgbjhiea.html
+     * http://en.wikipedia.org/wiki/ARM_Cortex-M#Cortex-M4 */
+
+    __asm__( \
+      "bkpt 0xAB\n"\
+      "nop\n" \
+      "bx lr\n"\
+        :::\
+    );
+}
+
+/* Detailed parameters please refer to
+ * http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0471c/Bgbjhiea.html */
+int host_open(const char *pathname, int flags)
+{
+    param semi_param[3] = {0};
+
+    /* Setting param */
+    semi_param[0].pdChrPtr = (char *) pathname;
+    semi_param[1].pdInt    = flags;
+    semi_param[2].pdInt    = strlen(pathname);
+
+    return hostCall(HOSTCALL_OPEN, semi_param);
+}
+
+size_t host_read(int fd, void *buf, size_t count)
+{
+    param semi_param[3] = {0};
+
+    /* Setting param */
+    semi_param[0].pdInt = fd;
+    semi_param[1].pdPtr = buf;
+    semi_param[2].pdInt = count;
+
+    return hostCall(HOSTCALL_READ, semi_param);
+}
+
+size_t host_write(int fd, const void *buf, size_t count)
+{
+    param semi_param[3] = {0};
+
+    /* Setting param */
+    semi_param[0].pdInt = fd;
+    semi_param[1].pdPtr = (void *) buf;
+    semi_param[2].pdInt = count;
+
+    return hostCall(HOSTCALL_WRITE, semi_param);
+}
+
+int host_close(int fd)
+{
+    return hostCall(HOSTCALL_CLOSE, (void *)&fd);
+}
+
+#endif /* USE_SEMIHOST */
