@@ -40,7 +40,8 @@ SRCS= \
 		str_util.c \
 		task.c \
 		path_server.c \
-		serial.c
+		serial.c \
+		shell.c
 
 # Flags
 ifeq ($(USE_ASM_OPTI_FUNC),YES)
