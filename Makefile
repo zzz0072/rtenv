@@ -37,7 +37,8 @@ SRCS= \
 		syscall.c \
 		stm32_p103.c \
 		kernel.c \
-		str_util.c
+		str_util.c \
+		task.c
 
 # Flags
 ifeq ($(USE_ASM_OPTI_FUNC),YES)

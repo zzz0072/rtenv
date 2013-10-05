@@ -3,6 +3,7 @@
 #include "RTOSConfig.h"
 #include "syscall.h"
 #include "str_util.h"
+#include "task.h"
 
 #include <stddef.h>
 
@@ -11,20 +12,9 @@
 #define PIPE_BUF   64 /* Size of largest atomic pipe message */
 #define PATH_MAX   32 /* Longest absolute path */
 #define PIPE_LIMIT (TASK_LIMIT * 2)
-#define MAX_NAME_CHARS (32)
 
 #define PATHSERVER_FD (TASK_LIMIT + 3)
 /* File descriptor of pipe to pathserver */
-
-#define PRIORITY_DEFAULT 20
-#define PRIORITY_LIMIT (PRIORITY_DEFAULT * 2 - 1)
-
-#define TASK_READY      0
-#define TASK_WAIT_READ  1
-#define TASK_WAIT_WRITE 2
-#define TASK_WAIT_INTR  3
-#define TASK_WAIT_TIME  4
-
 #define S_IFIFO 1
 #define S_IMSGQ 2
 
@@ -36,64 +26,7 @@
 #define RT_NO  (0)
 #define RT_YES (1)
 
-/* Stack struct of user thread, see "Exception entry and return" */
-struct user_thread_stack {
-    unsigned int r4;
-    unsigned int r5;
-    unsigned int r6;
-    unsigned int r7;
-    unsigned int r8;
-    unsigned int r9;
-    unsigned int r10;
-    unsigned int fp;
-    unsigned int _lr;    /* Back to system calls or return exception */
-    unsigned int _r7;    /* Backup from isr */
-    unsigned int r0;
-    unsigned int r1;
-    unsigned int r2;
-    unsigned int r3;
-    unsigned int ip;
-    unsigned int lr;    /* Back to user thread code */
-    unsigned int pc;
-    unsigned int xpsr;
-    unsigned int stack[STACK_SIZE - 18];
-};
-
-/* Task Control Block */
-struct task_control_block {
-    struct user_thread_stack *stack;
-    int pid;
-    int status;
-    int priority;
-    char name[MAX_NAME_CHARS];
-    struct task_control_block **prev;
-    struct task_control_block  *next;
-};
-
-struct task_info {
-    struct task_control_block *tasks;
-    unsigned int *task_amount;
-};
-
 static struct task_info g_task_info;
-
-static char *get_task_status(int status)
-{
-    switch (status) {
-        case TASK_READY:
-            return "Ready   ";
-        case TASK_WAIT_READ:
-            return "Wait read";
-        case TASK_WAIT_WRITE:
-            return "Wait write";
-        case TASK_WAIT_INTR:
-            return "Wait intr";
-        case TASK_WAIT_TIME:
-            return "Wait time";
-        default:
-            return "Unknown Status";
-    }
-}
 
 /*
  * pathserver assumes that all files are FIFOs that were registered
@@ -487,50 +420,6 @@ struct pipe_ringbuffer {
 #define PIPE_PEEK(pipe, v, i)  RB_PEEK((pipe), PIPE_BUF, (v), (i))
 #define PIPE_LEN(pipe)     (RB_LEN((pipe), PIPE_BUF))
 
-unsigned int *init_task(unsigned int *stack, void (*start)())
-{
-    stack += STACK_SIZE - 9; /* End of stack, minus what we're about to push */
-    stack[8] = (unsigned int)start;
-    return stack;
-}
-
-int
-task_push (struct task_control_block **list, struct task_control_block *item)
-{
-    if (list && item) {
-        /* Remove itself from original list */
-        if (item->prev)
-            *(item->prev) = item->next;
-        if (item->next)
-            item->next->prev = item->prev;
-
-        /* Insert into new list */
-        while (*list) list = &((*list)->next);
-        *list = item;
-        item->prev = list;
-        item->next = NULL;
-        return 0;
-    }
-    return -1;
-}
-
-struct task_control_block*
-task_pop (struct task_control_block **list)
-{
-    if (list) {
-        struct task_control_block *item = *list;
-        if (item) {
-            *list = item->next;
-            if (item->next)
-                item->next->prev = list;
-            item->prev = NULL;
-            item->next = NULL;
-            return item;
-        }
-    }
-    return NULL;
-}
-
 void _read(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes);
 void _write(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes);
 
@@ -556,20 +445,6 @@ void _read(struct task_control_block *task, struct task_control_block *tasks, si
                     _write(&tasks[i], tasks, task_count, pipes);
         }
     }
-}
-
-static void _copyProcName(void *dst, void *src, int char_to_copied)
-{
-    /* Boundary check */
-    if (char_to_copied > MAX_NAME_CHARS) {
-        char_to_copied = MAX_NAME_CHARS;
-    }
-
-    /* Let's copy */
-    memcpy(dst, src, char_to_copied);
-
-    /* Just make sure */
-    *((char *)dst + char_to_copied - 1) = 0;
 }
 
 void _write(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes)
