@@ -1,5 +1,5 @@
-#ifndef TASK_H_20131005
-#define TASK_H_20131005
+#ifndef PATH_SERVER_H_20131005
+#define PATH_SERVER_H_20131005
 #include <stddef.h>
 #include "task.h"
 

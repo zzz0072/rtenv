@@ -1,5 +1,5 @@
-#ifndef TASK_H_20130919
-#define TASK_H_20130919
+#ifndef TASK_H_20131005
+#define TASK_H_20131005
 
 #define MAX_NAME_CHARS (32)
 #define STACK_SIZE 512 /* Size of task stacks in words */
@@ -13,7 +13,6 @@
 #define TASK_WAIT_WRITE 2
 #define TASK_WAIT_INTR  3
 #define TASK_WAIT_TIME  4
-
 
 /* Stack struct of user thread, see "Exception entry and return" */
 struct user_thread_stack {
