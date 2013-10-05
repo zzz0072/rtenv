@@ -1,6 +1,5 @@
 #include "syscall_def.h"
 #include "str_util.h"
-#include <stddef.h>
 
 #define ENCLOSE_QUOTE(VAR) #VAR
 #define TO_STR(VAR) ENCLOSE_QUOTE(VAR)

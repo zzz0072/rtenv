@@ -38,7 +38,8 @@ SRCS= \
 		stm32_p103.c \
 		kernel.c \
 		str_util.c \
-		task.c
+		task.c \
+		path_server.c
 
 # Flags
 ifeq ($(USE_ASM_OPTI_FUNC),YES)

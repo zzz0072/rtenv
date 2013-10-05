@@ -2,7 +2,7 @@
 #define SYSCALL_H_20130919
 #include <stddef.h>
 #include <syscall_def.h>
-
+extern void *memcpy(void *dest, const void *src, size_t n);
 /* Prototypes */
 void *activate(void *stack);
 
