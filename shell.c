@@ -3,12 +3,10 @@
 #include "syscall.h"
 #include "str_util.h"
 #include "task.h"
+#include "common_define.h"
 
 #define BACKSPACE (127)
 #define ESC        (27)
-
-#define RT_NO  (0)
-#define RT_YES (1)
 
 extern struct task_info g_task_info;
 

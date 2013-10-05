@@ -7,6 +7,7 @@
 #include "path_server.h"
 #include "serial.h"
 #include "shell.h"
+#include "common_define.h"
 
 /* TODO: Remove global varialbe */
 struct task_info g_task_info;
