@@ -151,7 +151,7 @@ static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
     my_printf("\rCommand not found.\n");
 }
 
-void serial_readwrite_task()
+void shell_task()
 {
     int fdout, fdin;
     char str[MAX_MSG_CHARS];
@@ -257,9 +257,9 @@ void first()
         rs232_xmit_msg_task();
     }
 
-    if (!fork("serial_readwrite_task")) {
+    if (!fork("shell_task")) {
         setpriority(0, PRIORITY_DEFAULT - 10);
-        serial_readwrite_task();
+        shell_task();
     }
 
     setpriority(0, PRIORITY_LIMIT);
