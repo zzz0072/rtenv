@@ -92,8 +92,8 @@ union param_t
 };
 
 typedef union param_t param;
-int hostCall(enum HOST_SYSCALL action, void *arg) __attribute__ ((naked));
-int hostCall(enum HOST_SYSCALL action, void *arg)
+int host_call(enum HOST_SYSCALL action, void *arg) __attribute__ ((naked));
+int host_call(enum HOST_SYSCALL action, void *arg)
 {
     /* For Thumb-2 code use the BKPT instruction instead of SWI.
      * Refer to:
@@ -118,7 +118,7 @@ int host_open(const char *pathname, int flags)
         { .pdInt    = strlen(pathname) }
     };
 
-    return hostCall(HOSTCALL_OPEN, semi_param);
+    return host_call(HOSTCALL_OPEN, semi_param);
 }
 
 size_t host_read(int fd, void *buf, size_t count)
@@ -129,7 +129,7 @@ size_t host_read(int fd, void *buf, size_t count)
         { .pdInt = count }
     };
 
-    return hostCall(HOSTCALL_READ, semi_param);
+    return host_call(HOSTCALL_READ, semi_param);
 }
 
 size_t host_write(int fd, const void *buf, size_t count)
@@ -140,12 +140,12 @@ size_t host_write(int fd, const void *buf, size_t count)
         { .pdInt = count }
     };
 
-    return hostCall(HOSTCALL_WRITE, semi_param);
+    return host_call(HOSTCALL_WRITE, semi_param);
 }
 
 int host_close(int fd)
 {
-    return hostCall(HOSTCALL_CLOSE, (void *)&fd);
+    return host_call(HOSTCALL_CLOSE, (void *)&fd);
 }
 
 #endif /* USE_SEMIHOST */
