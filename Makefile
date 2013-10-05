@@ -43,6 +43,15 @@ SRCS= \
 		serial.c \
 		shell.c
 
+HEADERS = \
+		syscall.h \
+		str_util.h \
+		serial.h \
+		shell.h \
+		task.h \
+		path_server.h \
+		common_define.h
+
 # Flags
 ifeq ($(USE_ASM_OPTI_FUNC),YES)
 	SRCS+=memcpy.s
@@ -57,7 +66,7 @@ endif
 
 all: main.bin
 
-main.bin: $(SRCS) syscall.h str_util.h
+main.bin: $(SRCS) $(HEADERS)
 	$(CROSS_COMPILE)gcc \
 		-Wl,-Tmain.ld -nostartfiles \
 		-I . \
