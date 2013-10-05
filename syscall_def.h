@@ -11,8 +11,8 @@
 #define SYS_CALL_SETPRIORITY   (0x07)
 #define SYS_CALL_MK_NODE       (0x08)
 #define SYS_CALL_SLEEP         (0x09)
-#define SYS_CALL_GET_PROC_NAME (0x0A)
-#define SYS_CALL_SET_PROC_NAME (0x0B)
+#define SYS_CALL_GET_TASK_NAME (0x0A)
+#define SYS_CALL_SET_TASK_NAME (0x0B)
 
 #ifdef USE_SEMIHOST
 /* Refer to SYS_OPEN ARM document */

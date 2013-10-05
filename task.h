@@ -62,6 +62,6 @@ int task_push (struct task_control_block **list,
                 struct task_control_block *item);
 
 unsigned int *init_task(unsigned int *stack, void (*start)());
-void _copyProcName(void *dst, void *src, int char_to_copied);
+void copy_task_name(void *dst, void *src, int char_to_copied);
 
 #endif

@@ -63,7 +63,7 @@ task_pop (struct task_control_block **list)
     return NULL;
 }
 
-void _copyProcName(void *dst, void *src, int char_to_copied)
+void copy_task_name(void *dst, void *src, int char_to_copied)
 {
     /* Boundary check */
     if (char_to_copied > MAX_NAME_CHARS) {

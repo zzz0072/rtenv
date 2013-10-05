@@ -70,16 +70,16 @@ void sleep(unsigned int msec)
     SYS_CALL_BODY(TO_STR(SYS_CALL_SLEEP));
 }
 
-int setProcName(const void *proc_name, size_t count) __attribute__ ((naked));
-int setProcName(const void *proc_name, size_t count)
+int set_task_ame(const void *proc_name, size_t count) __attribute__ ((naked));
+int set_task_ame(const void *proc_name, size_t count)
 {
-    SYS_CALL_BODY(TO_STR(SYS_CALL_GET_PROC_NAME));
+    SYS_CALL_BODY(TO_STR(SYS_CALL_GET_TASK_NAME));
 }
 
-int getProcName(void *proc_name, size_t count) __attribute__ ((naked));
-int getProcName(void *proc_name, size_t count)
+int get_task_name(void *proc_name, size_t count) __attribute__ ((naked));
+int get_task_name(void *proc_name, size_t count)
 {
-    SYS_CALL_BODY(TO_STR(SYS_CALL_SET_PROC_NAME));
+    SYS_CALL_BODY(TO_STR(SYS_CALL_SET_TASK_NAME));
 }
 
 #ifdef USE_SEMIHOST

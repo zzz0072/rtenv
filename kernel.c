@@ -67,8 +67,7 @@ int main()
     tasks[task_count].pid = 0;
     tasks[task_count].priority = PRIORITY_DEFAULT;
 
-    _copyProcName((void *)tasks[task_count].name,
-                    (void *)"Init", 5);
+    copy_task_name((void *)tasks[task_count].name, (void *)"Init", 5);
     task_count++;
 
     /* dirty global tasks */
@@ -116,8 +115,8 @@ int main()
                 /* Set priority, inherited from forked task */
                 tasks[task_count].priority = tasks[current_task].priority;
 
-                /* Set process name */
-                _copyProcName((void *)tasks[task_count].name,
+                /* Set task name */
+                copy_task_name((void *)tasks[task_count].name,
                                 (void *)tasks[task_count].stack->r0,
                                 strlen((void *)tasks[task_count].stack->r0) + 1);
 
@@ -196,16 +195,16 @@ int main()
             }
             break;
 
-        case SYS_CALL_GET_PROC_NAME:
+        case SYS_CALL_GET_TASK_NAME:
             {
-                _copyProcName((void *)tasks[current_task].stack->r0,
+                copy_task_name((void *)tasks[current_task].stack->r0,
                                 (void *)tasks[current_task].name,
                                 tasks[current_task].stack->r1);
             } break;
 
-        case SYS_CALL_SET_PROC_NAME:
+        case SYS_CALL_SET_TASK_NAME:
             {
-                _copyProcName((void *)tasks[current_task].name,
+                copy_task_name((void *)tasks[current_task].name,
                                 (void *)tasks[current_task].stack->r0,
                                 tasks[current_task].stack->r1);
             } break;
