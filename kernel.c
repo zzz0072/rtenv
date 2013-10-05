@@ -11,7 +11,7 @@
 /* TODO: Remove global varialbe */
 struct task_info g_task_info;
 
-void first()
+void init_user_tasks()
 {
     setpriority(0, 0);
 
@@ -63,7 +63,7 @@ int main()
     init_rs232();
     __enable_irq();
 
-    tasks[task_count].stack = (void*)init_task(stacks[task_count], &first);
+    tasks[task_count].stack = (void*)init_task(stacks[task_count], &init_user_tasks);
     tasks[task_count].pid = 0;
     tasks[task_count].priority = PRIORITY_DEFAULT;
 
