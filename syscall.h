@@ -21,11 +21,11 @@ int mknod(int fd, int mode, int dev);
 
 void sleep(unsigned int);
 
-int setProcName(const void *proc_name, size_t count);
-int getProcName(void *proc_name, size_t count);
+int set_task_name(const void *proc_name, size_t count);
+int get_task_name(void *proc_name, size_t count);
 
 #ifdef USE_SEMIHOST
-int hostCall(enum HOST_SYSCALL action, void *params);
+int host_call(enum HOST_SYSCALL action, void *params);
 int host_open(const char *pathname, int flags);
 size_t host_read(int fd, void *buf, size_t count);
 size_t host_write(int fd, const void *buf, size_t count);
