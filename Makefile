@@ -74,7 +74,7 @@ main.bin: $(SRCS) $(HEADERS)
 		-I$(LIBDIR)/libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x \
 		-I$(CMSIS_LIB)/CM3/DeviceSupport/ST/STM32F10x \
 		-I$(LIBDIR)/libraries/STM32F10x_StdPeriph_Driver/inc \
-		-fno-common -O0 -fno-builtin-fork -Wall -std=c99 \
+		-fno-common -O0 -fno-builtin-fork -Wall -std=c99 -pedantic \
 		-gdwarf-2 -g3 \
 		-mcpu=cortex-m3 -mthumb \
 		-o main.elf \
