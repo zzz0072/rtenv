@@ -16,6 +16,7 @@ int get_task_name(void *proc_name, size_t count);
 void *activate(void *stack);
 void sleep(unsigned int);
 void interrupt_wait(int intr);
+void exit(int status);
 int  fork(const void *proc_descption);
 int  getpid();
 int  mknod(int fd, int mode, int dev);

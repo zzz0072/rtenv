@@ -142,6 +142,15 @@ int main()
             }
             break;
 
+        case SYS_CALL_TASK_EXIT:
+            {
+                /* Prevent task being pushed into list */
+                tasks[current_task].status = TASK_IS_EMPTY;
+
+                /* TODO: Clean up stack */
+            }
+            break;
+
         case SYS_CALL_GETPID:
             tasks[current_task].stack->r0 = current_task;
             break;
@@ -263,7 +272,7 @@ int main()
             else
                 task_push(&ready_list[tasks[current_task].priority], &tasks[current_task]);
         }
-        else {
+        else if (tasks[current_task].status != TASK_IS_EMPTY) {
             task_push(&wait_list, &tasks[current_task]);
         }
         while (ready_list[i] == NULL)

@@ -40,7 +40,7 @@ struct cmd_t
     char *desc;
     cmd_func_t handler;
 };
-
+static void test_exit(void);
 static void help_menu(void);
 typedef struct cmd_t cmd_entry;
 static cmd_entry available_cmds[] = {
@@ -53,8 +53,29 @@ static cmd_entry available_cmds[] = {
             .name = "help",
             .desc = "This menu",
             .handler = help_menu
+        },
+        {
+            .name = "t_exit",
+            .desc = "Test exit",
+            .handler = test_exit
         }
 };
+
+static void exit_test_task(void)
+{
+    my_printf("\rtest...sleep 5 second\n");
+    sleep(3000); /* ms */
+    my_printf("\rAbout to exit\n");
+    exit(0);
+}
+
+static void test_exit(void) 
+{
+    if (!fork("exit_test_task")) {
+        setpriority(0, PRIORITY_DEFAULT - 10);
+        exit_test_task();
+    }
+}
 
 static void help_menu(void)
 {

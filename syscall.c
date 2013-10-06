@@ -82,6 +82,12 @@ int get_task_name(void *proc_name, size_t count)
     SYS_CALL_BODY(TO_STR(SYS_CALL_SET_TASK_NAME));
 }
 
+void exit(int status) __attribute__ ((naked));
+void exit(int status)
+{
+    SYS_CALL_BODY(TO_STR(SYS_CALL_TASK_EXIT));
+}
+
 #ifdef USE_SEMIHOST
 /* Semihost system call parameters */
 union param_t
