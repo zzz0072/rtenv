@@ -22,10 +22,10 @@ int fork(const void *proc_descption)
     SYS_CALL_BODY(TO_STR(SYS_CALL_FORK));
 }
 
-int getpid() __attribute__ ((naked));
-int getpid()
+int gettid() __attribute__ ((naked));
+int gettid()
 {
-    SYS_CALL_BODY(TO_STR(SYS_CALL_GETPID));
+    SYS_CALL_BODY(TO_STR(SYS_CALL_GETTID));
 }
 
 int write(int fd, const void *buf, size_t count) __attribute__ ((naked));

@@ -24,8 +24,8 @@ static void cmd_ps(void)
     /* Start list */
     for (i = 0; i < TASK_LIMIT; i++) {
         if(g_task_info.tasks[i].status != TASK_IS_EMPTY) {
-            my_printf("\rPID: %d\tPriority: %d\tStatus: %s\t%s\n",
-            g_task_info.tasks[i].pid,
+            my_printf("\rTID: %d\tPriority: %d\tStatus: %s\t%s\n",
+            g_task_info.tasks[i].tid,
             g_task_info.tasks[i].priority,
             get_task_status(g_task_info.tasks[i].status),
             g_task_info.tasks[i].name);

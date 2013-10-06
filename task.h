@@ -42,7 +42,7 @@ struct user_thread_stack {
 /* Task Control Block */
 struct task_control_block {
     struct user_thread_stack *stack;
-    int pid;
+    int tid;
     int status;
     int priority;
     char name[MAX_NAME_CHARS];
@@ -66,6 +66,6 @@ int task_push (struct task_control_block **list,
 unsigned int *init_task(unsigned int *stack, void (*start)());
 void copy_task_name(void *dst, void *src, int char_to_copied);
 int find_next_empty_task_slot(struct task_control_block tasks[]);
-int is_task_valid(struct task_control_block task[], int pid);
+int is_task_valid(struct task_control_block task[], int tid);
 
 #endif

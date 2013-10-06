@@ -3,7 +3,7 @@
 
 /* System calls */
 #define SYS_CALL_FORK          (0x01)
-#define SYS_CALL_GETPID        (0x02)
+#define SYS_CALL_GETTID        (0x02)
 #define SYS_CALL_WRITE         (0x03)
 #define SYS_CALL_READ          (0x04)
 #define SYS_CALL_WAIT_INTR     (0x05)

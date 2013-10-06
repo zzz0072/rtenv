@@ -66,7 +66,7 @@ int main()
     __enable_irq();
 
     tasks[task_count].stack = (void*)init_task(stacks[task_count], &init_user_tasks);
-    tasks[task_count].pid = 0;
+    tasks[task_count].tid = 0;
     tasks[task_count].priority = PRIORITY_DEFAULT;
 
     copy_task_name((void *)tasks[task_count].name, (void *)"Init", 5);
@@ -116,8 +116,8 @@ int main()
                 memcpy(tasks[empty_task].stack, tasks[current_task].stack,
                        used * sizeof(unsigned int));
 
-                /* Set PID */
-                tasks[empty_task].pid = empty_task;
+                /* Set TID */
+                tasks[empty_task].tid = empty_task;
 
                 /* No more empty */
                 tasks[empty_task].status = TASK_CREATED;
@@ -151,7 +151,7 @@ int main()
             }
             break;
 
-        case SYS_CALL_GETPID:
+        case SYS_CALL_GETTID:
             tasks[current_task].stack->r0 = current_task;
             break;
 
@@ -277,7 +277,7 @@ int main()
         }
         while (ready_list[i] == NULL)
             i++;
-        current_task = task_pop(&ready_list[i])->pid;
+        current_task = task_pop(&ready_list[i])->tid;
     }
 
     return 0;
