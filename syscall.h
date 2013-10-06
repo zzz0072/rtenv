@@ -22,11 +22,13 @@ int  gettid();
 int  mknod(int fd, int mode, int dev);
 
 #ifdef USE_SEMIHOST
-int host_call(enum HOST_SYSCALL action, void *params);
-int host_open(const char *pathname, int flags);
 size_t host_read(int fd, void *buf, size_t count);
 size_t host_write(int fd, const void *buf, size_t count);
+
+int host_call(enum HOST_SYSCALL action, void *params);
+int host_open(const char *pathname, int flags);
 int host_close(int fd);
+int host_system(char *cmd, int str_len);
 #endif
 
 #endif /* SYSCALL_H_20130919 */
