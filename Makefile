@@ -60,13 +60,15 @@ ifeq ($(USE_ASM_OPTI_FUNC),YES)
 endif
 
 ifeq ($(USE_SEMIHOST),YES)
+	SMH_ROOT=./rtenv_root
 	CFLAGS+=-DUSE_SEMIHOST
-	QEMU_PARAM=-semihosting
+	QEMU_SMH_PARAM_SUFFIX=-semihosting -chroot $(SMH_ROOT)
+	QEMU_SMH_PARAM_PREFIX=sudo
 endif
 
 all: main.bin
 
-main.bin: $(SRCS) $(HEADERS)
+main.bin: $(SRCS) $(HEADERS) $(SMH_ROOT)
 	$(CROSS_COMPILE)gcc \
 		-Wl,-Tmain.ld -nostartfiles \
 		-I . \
@@ -84,13 +86,17 @@ main.bin: $(SRCS) $(HEADERS)
 	$(CROSS_COMPILE)objcopy -Obinary main.elf main.bin
 	$(CROSS_COMPILE)objdump -S main.elf > main.list
 
+$(SMH_ROOT):
+	if [ ! -d "$(SMH_ROOT)" ] ; then mkdir $(SMH_ROOT) ; fi
+
 qemu: main.bin $(QEMU_STM32)
-	$(QEMU_STM32) -M stm32-p103 -kernel main.bin -monitor null $(QEMU_PARAM)
+	$(QEMU_SMH_PARAM_PREFIX) $(QEMU_STM32) -M stm32-p103 \
+		-kernel main.bin -monitor null $(QEMU_SMH_PARAM_SUFFIX)
 
 qemudbg: main.bin $(QEMU_STM32)
-	$(QEMU_STM32) -M stm32-p103 \
+	$(QEMU_SMH_PARAM_PREFIX) $(QEMU_STM32) -M stm32-p103 \
 		-gdb tcp::3333 -S \
-		-kernel main.bin -monitor null
+		-kernel main.bin -monitor null $(QEMU_SMH_PARAM_SUFFIX)
 
 qemu_remote: main.bin $(QEMU_STM32)
 	$(QEMU_STM32) -M stm32-p103 -kernel main.bin -vnc :1
