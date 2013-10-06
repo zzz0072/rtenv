@@ -55,6 +55,7 @@ int main()
     size_t task_count = 0;
     size_t current_task = 0;
     size_t i;
+    int empty_task;
     struct task_control_block *task;
     int timeup;
     unsigned int tick_count = 0;
@@ -76,6 +77,10 @@ int main()
     g_task_info.task_amount = &task_count;
 
     /* Initialize all pipes */
+    for (i = 1; i < TASK_LIMIT; i++)
+        tasks[i].status = TASK_IS_EMPTY;
+
+    /* Initialize all pipes */
     for (i = 0; i < PIPE_LIMIT; i++)
         pipes[i].start = pipes[i].end = 0;
 
@@ -94,7 +99,8 @@ int main()
 
         switch (tasks[current_task].stack->r7) {
         case SYS_CALL_FORK:
-            if (task_count == TASK_LIMIT) {
+            empty_task = find_next_empty_task_slot(tasks);
+            if (empty_task == TASK_LIMIT) {
                 /* Cannot create a new task, return error */
                 tasks[current_task].stack->r0 = -1;
             }
@@ -104,29 +110,32 @@ int main()
                           - (unsigned int*)tasks[current_task].stack;
 
                 /* New stack is END - used */
-                tasks[task_count].stack = (void*)(stacks[task_count] + STACK_SIZE - used);
+                tasks[empty_task].stack = (void*)(stacks[empty_task] + STACK_SIZE - used);
 
                 /* Copy only the used part of the stack */
-                memcpy(tasks[task_count].stack, tasks[current_task].stack,
+                memcpy(tasks[empty_task].stack, tasks[current_task].stack,
                        used * sizeof(unsigned int));
 
                 /* Set PID */
-                tasks[task_count].pid = task_count;
+                tasks[empty_task].pid = empty_task;
+
+                /* No more empty */
+                tasks[empty_task].status = TASK_CREATED;
 
                 /* Set priority, inherited from forked task */
-                tasks[task_count].priority = tasks[current_task].priority;
+                tasks[empty_task].priority = tasks[current_task].priority;
 
                 /* Set task name */
-                copy_task_name((void *)tasks[task_count].name,
-                                (void *)tasks[task_count].stack->r0,
-                                strlen((void *)tasks[task_count].stack->r0) + 1);
+                copy_task_name((void *)tasks[empty_task].name,
+                                (void *)tasks[empty_task].stack->r0,
+                                strlen((void *)tasks[empty_task].stack->r0) + 1);
 
                 /* Set return values in each process */
-                tasks[current_task].stack->r0 = task_count;
-                tasks[task_count].stack->r0 = 0;
-                tasks[task_count].prev = NULL;
-                tasks[task_count].next = NULL;
-                task_push(&ready_list[tasks[task_count].priority], &tasks[task_count]);
+                tasks[current_task].stack->r0 = empty_task;
+                tasks[empty_task].stack->r0 = 0;
+                tasks[empty_task].prev = NULL;
+                tasks[empty_task].next = NULL;
+                task_push(&ready_list[tasks[empty_task].priority], &tasks[empty_task]);
 
                 /* There is now one more task */
                 task_count++;
@@ -138,11 +147,11 @@ int main()
             break;
 
         case SYS_CALL_WRITE:
-            _write(&tasks[current_task], tasks, task_count, pipes);
+            _write(&tasks[current_task], tasks, pipes);
             break;
 
         case SYS_CALL_READ:
-            _read(&tasks[current_task], tasks, task_count, pipes);
+            _read(&tasks[current_task], tasks, pipes);
             break;
 
         case SYS_CALL_WAIT_INTR:
@@ -156,10 +165,11 @@ int main()
         case SYS_CALL_GETPRIORITY:
             {
                 int who = tasks[current_task].stack->r0;
-                if (who > 0 && who < (int)task_count)
-                    tasks[current_task].stack->r0 = tasks[who].priority;
-                else if (who == 0)
+
+                if (who == 0) /* Special case handle first */
                     tasks[current_task].stack->r0 = tasks[current_task].priority;
+                else if (is_task_valid(tasks, who) == RT_YES)
+                    tasks[current_task].stack->r0 = tasks[who].priority;
                 else
                     tasks[current_task].stack->r0 = -1;
             } break;
@@ -169,10 +179,11 @@ int main()
                 int who = tasks[current_task].stack->r0;
                 int value = tasks[current_task].stack->r1;
                 value = (value < 0) ? 0 : ((value > PRIORITY_LIMIT) ? PRIORITY_LIMIT : value);
-                if (who > 0 && who < (int)task_count)
-                    tasks[who].priority = value;
-                else if (who == 0)
+
+                if (who == 0) /* Special case handle first */
                     tasks[current_task].priority = value;
+                else if (is_task_valid(tasks, who) == RT_YES)
+                    tasks[who].priority = value;
                 else {
                     tasks[current_task].stack->r0 = -1;
                     break;
@@ -225,12 +236,15 @@ int main()
                 }
 
                 /* Unblock any waiting tasks */
-                for (i = 0; i < task_count; i++)
-                    if ((tasks[i].status == TASK_WAIT_INTR && tasks[i].stack->r0 == intr) ||
-                        (tasks[i].status == TASK_WAIT_TIME && tasks[i].stack->r0 == tick_count))
-                        tasks[i].status = TASK_READY;
-            }
-        }
+                for (i = 0; i < TASK_LIMIT; i++) {
+                    if(tasks[i].status != TASK_IS_EMPTY) {
+                        if ((tasks[i].status == TASK_WAIT_INTR && tasks[i].stack->r0 == intr) ||
+                            (tasks[i].status == TASK_WAIT_TIME && tasks[i].stack->r0 == tick_count))
+                            tasks[i].status = TASK_READY;
+                    }
+                }
+            } /* default */
+        }     /* Switch */
 
         /* Put waken tasks in ready list */
         for (task = wait_list; task != NULL;) {

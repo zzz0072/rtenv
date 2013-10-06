@@ -22,12 +22,14 @@ static void cmd_ps(void)
     }
 
     /* Start list */
-    for (i = 0; i < *(g_task_info.task_amount); i++) {
-        my_printf("\rPID: %d\tPriority: %d\tStatus: %s\t%s\n",
-                    g_task_info.tasks[i].pid,
-                    g_task_info.tasks[i].priority,
-                    get_task_status(g_task_info.tasks[i].status),
-                    g_task_info.tasks[i].name);
+    for (i = 0; i < TASK_LIMIT; i++) {
+        if(g_task_info.tasks[i].status != TASK_IS_EMPTY) {
+            my_printf("\rPID: %d\tPriority: %d\tStatus: %s\t%s\n",
+            g_task_info.tasks[i].pid,
+            g_task_info.tasks[i].priority,
+            get_task_status(g_task_info.tasks[i].status),
+            g_task_info.tasks[i].name);
+        }
     }
 }
 

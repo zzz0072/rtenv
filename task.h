@@ -8,11 +8,13 @@
 #define PRIORITY_DEFAULT 20
 #define PRIORITY_LIMIT (PRIORITY_DEFAULT * 2 - 1)
 
-#define TASK_READY      0
-#define TASK_WAIT_READ  1
-#define TASK_WAIT_WRITE 2
-#define TASK_WAIT_INTR  3
-#define TASK_WAIT_TIME  4
+#define TASK_IS_EMPTY   0
+#define TASK_CREATED    1
+#define TASK_READY      2
+#define TASK_WAIT_READ  3
+#define TASK_WAIT_WRITE 4
+#define TASK_WAIT_INTR  5
+#define TASK_WAIT_TIME  6
 
 /* Stack struct of user thread, see "Exception entry and return" */
 struct user_thread_stack {
@@ -63,5 +65,7 @@ int task_push (struct task_control_block **list,
 
 unsigned int *init_task(unsigned int *stack, void (*start)());
 void copy_task_name(void *dst, void *src, int char_to_copied);
+int find_next_empty_task_slot(struct task_control_block tasks[]);
+int is_task_valid(struct task_control_block task[], int pid);
 
 #endif

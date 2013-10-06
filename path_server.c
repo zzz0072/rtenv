@@ -99,7 +99,7 @@ int mq_open(const char *name, int oflag)
     return open(name, 0);
 }
 
-void _read(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes)
+void _read(struct task_control_block *task, struct task_control_block *tasks, struct pipe_ringbuffer *pipes)
 {
     task->status = TASK_READY;
 
@@ -116,14 +116,17 @@ void _read(struct task_control_block *task, struct task_control_block *tasks, si
             pipe->read(pipe, task);
 
             /* Unblock any waiting writes */
-            for (i = 0; i < task_count; i++)
-                if (tasks[i].status == TASK_WAIT_WRITE)
-                    _write(&tasks[i], tasks, task_count, pipes);
+            for (i = 0; i < TASK_LIMIT; i++) {
+                if(tasks[i].status != TASK_IS_EMPTY) {
+                    if (tasks[i].status == TASK_WAIT_WRITE)
+                        _write(&tasks[i], tasks, pipes);
+                }
+            }
         }
     }
 }
 
-void _write(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes)
+void _write(struct task_control_block *task, struct task_control_block *tasks, struct pipe_ringbuffer *pipes)
 {
     task->status = TASK_READY;
 
@@ -140,9 +143,12 @@ void _write(struct task_control_block *task, struct task_control_block *tasks, s
             pipe->write(pipe, task);
 
             /* Unblock any waiting reads */
-            for (i = 0; i < task_count; i++)
-                if (tasks[i].status == TASK_WAIT_READ)
-                    _read(&tasks[i], tasks, task_count, pipes);
+            for (i = 0; i < TASK_LIMIT; i++) {
+                if(tasks[i].status != TASK_IS_EMPTY) {
+                    if (tasks[i].status == TASK_WAIT_READ)
+                        _read(&tasks[i], tasks, pipes);
+                }
+            }
         }
     }
 }

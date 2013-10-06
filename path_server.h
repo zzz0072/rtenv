@@ -58,8 +58,8 @@ struct pipe_ringbuffer {
 
 void pathserver();
 int open(const char *pathname, int flags);
-void _read(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes);
-void _write(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes);
+void _read(struct task_control_block *task, struct task_control_block *tasks, struct pipe_ringbuffer *pipes);
+void _write(struct task_control_block *task, struct task_control_block *tasks, struct pipe_ringbuffer *pipes);
 int mq_open(const char *name, int oflag);
 int mkfifo(const char *pathname, int mode);
 int _mknod(struct pipe_ringbuffer *pipe, int dev);

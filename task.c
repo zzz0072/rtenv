@@ -77,3 +77,23 @@ void copy_task_name(void *dst, void *src, int char_to_copied)
     /* Just make sure */
     *((char *)dst + char_to_copied - 1) = 0;
 }
+
+int find_next_empty_task_slot(struct task_control_block tasks[])
+{
+    int i;
+    for (i = 0; i < TASK_LIMIT; i++) {
+        if(tasks[i].status == TASK_IS_EMPTY) {
+            return i;
+        }
+    }
+    return i;
+}
+
+int is_task_valid(struct task_control_block tasks[], int pid)
+{
+    if (pid >=0 && pid < TASK_LIMIT &&       /* Range  */
+        tasks[pid].status != TASK_IS_EMPTY   /* Status */) {
+        return RT_YES;
+    }
+    return RT_NO;
+}
