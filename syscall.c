@@ -154,4 +154,12 @@ int host_close(int fd)
     return host_call(HOSTCALL_CLOSE, (void *)&fd);
 }
 
+int host_system(char *cmd, int str_len)
+{
+    param semi_param[3] = {
+        { .pdPtr = (void *) cmd },
+        { .pdInt = str_len }
+    };
+    return host_call(HOSTCALL_SYSTEM, semi_param);
+}
 #endif /* USE_SEMIHOST */
