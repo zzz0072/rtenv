@@ -204,9 +204,7 @@ void shell_task()
         my_printf("\n\r$ ");
         read_token(str, MAX_MSG_CHARS);
 
-        /* Once we are done building the response string, queue the
-         * response to be sent to the RS232 port.
-         */
+        /* Process command */
         if (strlen(str) < MAX_MSG_CHARS - 1 && str[0] != '\n') {
             proc_cmd(str);
         }
