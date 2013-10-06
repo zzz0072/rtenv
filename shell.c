@@ -87,7 +87,7 @@ static void help_menu(void)
     }
 }
 
-static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
+static void proc_cmd(char *cmd)
 {
     int i = 0;
 
@@ -106,85 +106,88 @@ static void proc_cmd(int out_fd, char *cmd, int cmd_char_num)
     my_printf("\rCommand not found.\n");
 }
 
-void shell_task()
+static void read_token(char *token, int max_token_chars)
 {
-    int fdout, fdin;
-    char str[MAX_MSG_CHARS];
+    int fdin;
     char ch[] = {0x00, 0x00};
     char last_char_is_ESC = RT_NO;
     int curr_char;
 
-    fdout = mq_open("/tmp/mqueue/out", 0);
     fdin = open("/dev/tty0/in", 0);
+    curr_char = 0;
+    while(1) {
+        /* Receive a byte from the RS232 port (this call will
+         * block). */
+        read(fdin, &ch[0], 1);
+
+        /* Handle ESC case first */
+        if (last_char_is_ESC == RT_YES) {
+            last_char_is_ESC = RT_NO;
+
+            if (ch[0] == '[') {
+                /* Direction key: ESC[A ~ ESC[D */
+                read(fdin, &ch[0], 1);
+
+                /* Home:      ESC[1~
+                 * End:       ESC[2~
+                 * Insert:    ESC[3~
+                 * Delete:    ESC[4~
+                 * Page up:   ESC[5~
+                 * Page down: ESC[6~ */
+                if (ch[0] >= '1' && ch[0] <= '6') {
+                    read(fdin, &ch[0], 1);
+                }
+                continue;
+            }
+        }
+
+        /* If the byte is an end-of-line type character, then
+         * finish the string and inidcate we are done.
+         */
+        if (curr_char >= 98 || (ch[0] == '\r') || (ch[0] == '\n')) {
+            *(token + curr_char) = '\n';
+            *(token + curr_char + 1) = '\0';
+            break;
+        }
+        else if(ch[0] == ESC) {
+            last_char_is_ESC = RT_YES;
+        }
+        /* Skip control characters. man ascii for more information */
+        else if (ch[0] < 0x20) {
+            continue;
+        }
+        else if(ch[0] == BACKSPACE) { /* backspace */
+            if(curr_char > 0) {
+                curr_char--;
+                my_printf("\b \b");
+            }
+        }
+        else {
+            /* Appends only when buffer is not full.
+             * Include \n\0 */
+            if (curr_char < (max_token_chars - 3)) {
+                *(token + curr_char++) = ch[0];
+                my_puts(ch);
+            }
+        }
+    }
+}
+
+void shell_task()
+{
+    char str[MAX_MSG_CHARS];
 
     help_menu();
     while (1) {
         /* Show prompt */
         my_printf("\n\r$ ");
-
-        curr_char = 0;
-        while(1) {
-            /* Receive a byte from the RS232 port (this call will
-             * block). */
-            read(fdin, &ch[0], 1);
-
-            /* Handle ESC case first */
-            if (last_char_is_ESC == RT_YES) {
-                last_char_is_ESC = RT_NO;
-
-                if (ch[0] == '[') {
-                    /* Direction key: ESC[A ~ ESC[D */
-                    read(fdin, &ch[0], 1);
-
-                    /* Home:      ESC[1~
-                     * End:       ESC[2~
-                     * Insert:    ESC[3~
-                     * Delete:    ESC[4~
-                     * Page up:   ESC[5~
-                     * Page down: ESC[6~ */
-                    if (ch[0] >= '1' && ch[0] <= '6') {
-                        read(fdin, &ch[0], 1);
-                    }
-                    continue;
-                }
-            }
-
-            /* If the byte is an end-of-line type character, then
-             * finish the string and inidcate we are done.
-             */
-            if (curr_char >= 98 || (ch[0] == '\r') || (ch[0] == '\n')) {
-                str[curr_char] = '\n';
-                str[curr_char+1] = '\0';
-                break;
-            }
-            else if(ch[0] == ESC) {
-                last_char_is_ESC = RT_YES;
-            }
-            /* Skip control characters. man ascii for more information */
-            else if (ch[0] < 0x20) {
-                continue;
-            }
-            else if(ch[0] == BACKSPACE) { /* backspace */
-                if(curr_char > 0) {
-                    curr_char--;
-                    my_printf("\b \b");
-                }
-            }
-            else {
-                /* Appends only when buffer is not full.
-               * Include \n\0*/
-                if (curr_char < (MAX_MSG_CHARS - 3)) {
-                    str[curr_char++] = ch[0];
-                    my_puts(ch);
-                }
-            }
-        }
+        read_token(str, MAX_MSG_CHARS);
 
         /* Once we are done building the response string, queue the
          * response to be sent to the RS232 port.
          */
         if (strlen(str) < MAX_MSG_CHARS - 1 && str[0] != '\n') {
-            proc_cmd(fdout, str, curr_char + 1 + 1);
+            proc_cmd(str);
         }
     }
 }
