@@ -70,8 +70,8 @@ void sleep(unsigned int msec)
     SYS_CALL_BODY(TO_STR(SYS_CALL_SLEEP));
 }
 
-int set_task_ame(const void *proc_name, size_t count) __attribute__ ((naked));
-int set_task_ame(const void *proc_name, size_t count)
+int set_task_name(const void *proc_name, size_t count) __attribute__ ((naked));
+int set_task_name(const void *proc_name, size_t count)
 {
     SYS_CALL_BODY(TO_STR(SYS_CALL_GET_TASK_NAME));
 }
