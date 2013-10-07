@@ -98,20 +98,20 @@ union param_t
 };
 
 typedef union param_t param;
-int host_call(enum HOST_SYSCALL action, void *arg) __attribute__ ((naked));
-int host_call(enum HOST_SYSCALL action, void *arg)
+static inline int host_call(enum HOST_SYSCALL action, void *arg)
 {
     /* For Thumb-2 code use the BKPT instruction instead of SWI.
      * Refer to:
      * http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0471c/Bgbjhiea.html
      * http://en.wikipedia.org/wiki/ARM_Cortex-M#Cortex-M4 */
-
+    int result;
     __asm__( \
       "bkpt 0xAB\n"\
       "nop\n" \
       "bx lr\n"\
-        :::\
+        :"=r" (result) ::\
     );
+    return result;
 }
 
 /* Detailed parameters please refer to
