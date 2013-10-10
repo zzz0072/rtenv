@@ -49,7 +49,8 @@ static void read_token(char *token, int max_token_chars)
         /* If the byte is an end-of-line type character, then
          * finish the string and inidcate we are done.
          */
-        if (curr_char >= 98 || (ch[0] == '\r') || (ch[0] == '\n')) {
+        if (curr_char == (max_token_chars - 2) || \
+            (ch[0] == '\r') || (ch[0] == '\n')) {
             *(token + curr_char) = '\n';
             *(token + curr_char + 1) = '\0';
             break;
