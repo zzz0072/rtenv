@@ -126,18 +126,20 @@ static cmd_entry available_cmds[] = {
             .desc = "This menu",
             .handler = help_menu
         },
+        #ifdef USE_SEMIHOST
         {
             .name = "system",
             .desc = "system\n\r\t\tRun host command",
             .handler = system
         },
+        #endif
         {
             .name = "t_exit",
             .desc = "Test exit",
             .handler = test_exit
         }
 };
-
+#ifdef USE_SEMIHOST
 static void system(void)
 {
     char host_cmd[MAX_MSG_CHARS];
@@ -149,7 +151,7 @@ static void system(void)
         host_system(host_cmd, strlen(host_cmd));
     }
 }
-
+#endif
 static void exit_test_task(void)
 {
     my_printf("\rtest...sleep 3 second\n");
