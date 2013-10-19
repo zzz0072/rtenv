@@ -18,12 +18,20 @@ int strncmp(const char *str_a, const char *str_b, size_t n)
     return 0;
 }
 
-#define itoa(val) itoa_base(val, 10)
-#define htoa(val) itoa_base(val, 16)
+/* Warning!! Last atoi buf element needs to be set to \0 */
+/*           for itoa(), htoa() and addrtoa()            */
+/* Example: itoa_buf[MAX_ITOA_CHARS - 1] = 0;            */
+/*          itoa_buf = itoa(100, itoa_buf)               */
+enum int_type_t {
+    IS_SIGNED_INT,
+    IS_UNSIGNED_INT
+};
+#define MAX_ITOA_CHARS (32)
+#define itoa(val, str) num_to_string(val, 10, str, IS_SIGNED_INT)
+#define htoa(val, str) num_to_string(val, 16, str, IS_SIGNED_INT)
 
-static char* itoa_base(int val, int base)
+static char* num_to_string(unsigned int val, int base, char *buf, enum int_type_t int_type)
 {
-    static char buf[32] = { 0 };
     char has_minus = 0;
     int i = 30;
 
@@ -33,8 +41,8 @@ static char* itoa_base(int val, int base)
         return &buf[1];
     }
 
-    if (val < 0) {
-        val = -val;
+    if (int_type == IS_SIGNED_INT && (int)val < 0) {
+        val = (int)-val;
         has_minus = 1;
     }
 
@@ -66,6 +74,7 @@ void my_printf(const char *fmt_str, ...)
     char  param_chr[] = {0, 0}; 
     int   param_int = 0;
 
+    char itoa_buf[MAX_ITOA_CHARS] = {0};
     char *str_to_output = 0;
     int   curr_char  = 0;
 
@@ -93,7 +102,7 @@ void my_printf(const char *fmt_str, ...)
                 case 'D':
                     {
                        param_int     = va_arg(param, int);
-                       str_to_output = itoa(param_int);
+                       str_to_output = itoa(param_int, itoa_buf);
                     }
                     break;
 
@@ -101,7 +110,7 @@ void my_printf(const char *fmt_str, ...)
                 case 'x':
                     {
                        param_int     = va_arg(param, int);
-                       str_to_output = htoa(param_int);
+                       str_to_output = htoa(param_int, itoa_buf);
                     }
                     break;
 
