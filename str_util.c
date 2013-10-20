@@ -23,12 +23,12 @@ int strncmp(const char *str_a, const char *str_b, size_t n)
 /* Example: itoa_buf[MAX_ITOA_CHARS - 1] = 0;            */
 /*          itoa_buf = itoa(100, itoa_buf)               */
 enum int_type_t {
-    IS_SIGNED_INT,
-    IS_UNSIGNED_INT
+    SIGNED_INT,
+    UNSIGNED_INT
 };
 #define MAX_ITOA_CHARS (32)
-#define itoa(val, str) num_to_string(val, 10, str, IS_SIGNED_INT)
-#define htoa(val, str) num_to_string(val, 16, str, IS_SIGNED_INT)
+#define itoa(val, str) num_to_string(val, 10, str, SIGNED_INT)
+#define htoa(val, str) num_to_string(val, 16, str, SIGNED_INT)
 
 static char* num_to_string(unsigned int val, int base, char *buf, enum int_type_t int_type)
 {
@@ -41,7 +41,7 @@ static char* num_to_string(unsigned int val, int base, char *buf, enum int_type_
         return &buf[1];
     }
 
-    if (int_type == IS_SIGNED_INT && (int)val < 0) {
+    if (int_type == SIGNED_INT && (int)val < 0) {
         val = (int)-val;
         has_minus = 1;
     }
