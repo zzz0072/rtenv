@@ -124,13 +124,13 @@ emu: main.bin
 qemuauto: main.bin gdbscript
 	bash emulate.sh main.bin &
 	sleep 1
-	$(CROSS_COMPILE)gdb -x gdbscript&
+	$(CROSS_COMPILE)gdb -x gdbscript &
 	sleep 5
 
 qemuauto_remote: main.bin gdbscript
 	bash emulate_remote.sh main.bin &
 	sleep 1
-	$(CROSS_COMPILE)gdb -x gdbscript&
+	$(CROSS_COMPILE)gdb -x gdbscript &
 	sleep 5
 
 clean:
