@@ -139,4 +139,4 @@ qemuauto_remote: main.bin gdbscript
 	sleep 5
 
 clean:
-	rm -f *.elf *.bin *.list
+	rm -f *.elf *.bin *.list *.pyc *.vcd gdb.txt
