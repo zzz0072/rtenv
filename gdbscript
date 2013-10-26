@@ -16,10 +16,8 @@ commands 2 3 4 5 6 7
     output {uint32_t} 0xE000e018
     echo countDown:
     output {uint32_t} 0xE000e014
-	c
+    c
 end
 c
 set logging on
 c
-
-	
