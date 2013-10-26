@@ -9,6 +9,7 @@ PLAT=STM32F10x
 # Build options
 USE_ASM_OPTI_FUNC=YES
 USE_SEMIHOST=YES
+USE_SEMIHOST_CHROOT=NO
 
 # PATH
 LIBDIR = .
@@ -62,8 +63,12 @@ endif
 ifeq ($(USE_SEMIHOST),YES)
 	SMH_ROOT=./rtenv_root
 	CFLAGS+=-DUSE_SEMIHOST
-	QEMU_SMH_PARAM_SUFFIX=-semihosting -chroot $(SMH_ROOT)
+	QEMU_SMH_PARAM_SUFFIX=-semihosting 
+
+	ifeq ($(USE_SEMIHOST_CHROOT),YES)
+	QEMU_SMH_PARAM_SUFFIX+=-chroot $(SMH_ROOT)
 	QEMU_SMH_PARAM_PREFIX=sudo
+	endif
 endif
 
 all: main.bin
