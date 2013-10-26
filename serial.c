@@ -2,7 +2,7 @@
 #include "path_server.h"
 #include "syscall.h"
 
-void serialout(USART_TypeDef* uart, unsigned int intr)
+void serialout_task(USART_TypeDef* uart, unsigned int intr)
 {
     int fd;
     char c;
@@ -24,7 +24,7 @@ void serialout(USART_TypeDef* uart, unsigned int intr)
     }
 }
 
-void serialin(USART_TypeDef* uart, unsigned int intr)
+void serialin_task(USART_TypeDef* uart, unsigned int intr)
 {
     int fd;
     char c;

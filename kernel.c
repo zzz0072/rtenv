@@ -16,19 +16,19 @@ void init_user_tasks()
 {
     setpriority(0, 0);
 
-    if (!fork("pathserver")) {
+    if (!fork("pathserver_task")) {
         setpriority(0, 0);
-        pathserver();
+        pathserver_task();
     }
 
-    if (!fork("serialout")) {
+    if (!fork("serialout_task")) {
         setpriority(0, 0);
-        serialout(USART2, USART2_IRQn);
+        serialout_task(USART2, USART2_IRQn);
     }
 
-    if (!fork("serialin")) {
+    if (!fork("serialin_task")) {
         setpriority(0, 0);
-        serialin(USART2, USART2_IRQn);
+        serialin_task(USART2, USART2_IRQn);
     }
 
     if (!fork("rs232_xmit_msg_task")) {

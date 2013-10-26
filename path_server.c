@@ -11,7 +11,7 @@
  * 0-2 are reserved FDs and are skipped.
  * The server registers itself at /sys/pathserver
 */
-void pathserver()
+void pathserver_task()
 {
     char paths[PIPE_LIMIT - TASK_LIMIT - 3][PATH_MAX];
     int npaths = 0;
