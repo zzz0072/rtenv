@@ -2,15 +2,19 @@ shell rm -f gdb.txt
 file main.elf
 target remote :3333
 set debug timestamp on
+
 b main
+b kernel.c:61
+c
+set $ticks = &tick_count
 b pathserver.c:25
 b serial.c:14
 b serial.c:37
 b serial.c:54
 b shell.c:25
-commands 2 3 4 5 6
+commands 3 4 5 6 7
     echo 1: xTaskGetTickCount() = \ 
-    output {uint32_t} 0xE000e018
+    output (unsigned int) *($ticks)
     echo \n
     bt
     c
