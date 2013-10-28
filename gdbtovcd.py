@@ -22,7 +22,7 @@ gdbfile.close()
 # regex pattern declaration
 btm_regex = re.compile('^#\d+\s+0x00000000.*')
 task_regex = re.compile( '^#\d+\s+(0x\w+\s+in\s)?(?P<task>\w+).*' )
-time_regex = re.compile( '.*?xTaskGetTickCount\(\)\s=\s(?P<ms>\d+)')
+time_regex = re.compile( '.*?tick_count\s=\s(?P<ms>\d+)')
 
 # store context switch
 events = list()
