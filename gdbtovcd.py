@@ -53,7 +53,7 @@ for i in range(len(lines)):
         e[ 'ms' ] = int( cmp_obj.group( 'ms' ) )
 
     # found task
-    if task_regex.match( lines[ i ] ):
+    if lines[ i ].find("init_user_tasks") == -1 and task_regex.match( lines[ i ] ):
         # extract task name
         cmp_obj = task_regex.search( lines[ i ]  )
         task_name = cmp_obj.group( 'task' )
