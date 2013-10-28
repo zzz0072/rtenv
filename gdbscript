@@ -11,7 +11,7 @@ b pathserver.c:25
 b serial.c:14
 b serial.c:37
 b serial.c:54
-b shell.c:25
+b shell.c:205
 commands 3 4 5 6 7
     echo 1: xTaskGetTickCount() = \ 
     output (unsigned int) *($ticks)
