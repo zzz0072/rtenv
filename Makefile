@@ -131,6 +131,7 @@ qemuauto: main.bin gdbscript
 	sleep 1
 	$(CROSS_COMPILE)gdb -x gdbscript &
 	sleep 5
+	./gdbtovcd.py && gtkwave ./sched.vcd
 
 qemuauto_remote: main.bin gdbscript
 	bash emulate_remote.sh main.bin &
