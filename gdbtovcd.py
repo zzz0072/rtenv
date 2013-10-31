@@ -1,100 +1,72 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''
-#=============================================================================
-#     FileName: gdbtovcd.py
-#         Desc: convert gdb output to vcd file
-#       Author: KuoE0
-#        Email: kuoe0.tw@gmail.com
-#     HomePage: http://kuoe0.ch/
-#      Version: 0.0.1
-#   LastChange: 2012-10-15 16:24:15
-#      History:
-#=============================================================================
-'''
 
 import re
+def getAllFuncs():
+    """docstring for getAllFuncs"""
+    with open(source, 'r') as input:
+        data = input.readlines()
+    functionDict = {}
+    for datum in data:
+        match = funcPattern.search(datum)
+        if  match:
+            functionDict[match.group(1)] = True
+    return functionDict
 
-# read all file lines
-gdbfile = open( 'gdb.txt' )
-lines = gdbfile.readlines()
-gdbfile.close()
-# regex pattern declaration
-btm_regex = re.compile('^#\d+\s+0x00000000.*')
-task_regex = re.compile( '^#\d+\s+(0x\w+\s+in\s)?(?P<task>\w+).*' )
-time_regex = re.compile( '.*?tick_count\s=\s(?P<ms>\d+)')
+def valuesParsing():
+    """parse values to precised tick"""
+    with open(source, 'r') as input:
+        data = input.readlines()
+    status = 0;
+    timeList = []
+    preCur = 999999999
+    preTick = 0
+    for datum in data:
+        if  status is 0:
+            match = funcPattern.search(datum)
+            if match:
+                status = 1
+                name = match.group(1)
+        elif status is 1:
+            match = valuesPattern.search(datum)
+            if  match:
+                status = 0
+                temp = match.groups()
+                dur = (float(temp[2]) - float(temp[1]))
+                tick = float(temp[0])+( dur /float(temp[2]))
+                if  float(temp[1]) > preCur and preTick == float(temp[0]):
+                    tick = tick + 1
+                preCur = float(temp[1])
+                preTick = float(temp[0])
+                print name, temp, tick
+                tick = int(tick*10)
+                timeList.append((name, tick))
+    return timeList
 
-# store context switch
-events = list()
-# store task type
-task = dict()
-
-# record start time
-cmp_obj = time_regex.search( lines[ 0 ] )
-lines.remove( lines[ 0 ] )
-
-
-last = ""
-cur = ""
-found = False
-e = dict()
-
-# read all data
-for i in range(len(lines)):
-    if lines[ i ] == "\n":
-        continue
-
-    last = cur
-    cur = lines[ i ]
-
-    if time_regex.match( cur ):
-        e = dict()
-        cmp_obj = time_regex.search( cur )
-        e[ 'ms' ] = int( cmp_obj.group( 'ms' ) )
-
-    # found task
-    if lines[ i ].find("init_user_tasks") == -1 and task_regex.match( lines[ i ] ):
-        # extract task name
-        cmp_obj = task_regex.search( lines[ i ]  )
-        task_name = cmp_obj.group( 'task' )
-        e[ 'task' ] = task_name
-        # add task
-        if task_name not in task:
-            task[ task_name ] = len( task )
-        events.append( e )
-
-start_time = events[ 0 ][ 'ms' ]
-
-# output vcd file
-vcdfile = open( 'sched.vcd', 'w' )
-vcdfile.write( '$version\n' )
-vcdfile.write( '$end\n' )
-vcdfile.write( '$timescale 1us\n' )
-vcdfile.write( '$end\n' )
-for t in task:
-    vcdfile.write( '$var wire 1 ' + t + ' ' + t + ' $end\n' )
-vcdfile.write( '$dumpvars\n' )
-
-last_e = -1
-d = 0
-for e in events:
-    diff_time = e[ 'ms' ] - start_time
-
-    if diff_time - last_e > 0:
-        d = 0;
-    else:
-        d = d + 1
-
-    vcdfile.write( '#' + str(diff_time * 1000 + d * 100) + '\n' )
-    last_e = diff_time
-
-    for t in task:
-        if t != e[ 'task' ]:
-            vcdfile.write( 'b0 ' )
-        else:
-            vcdfile.write( 'b1 ' )
-        vcdfile.write( t + ' \n' );
-
-vcdfile.write( '$end' )
-
-
+if __name__ == '__main__':
+    #config
+    source = 'gdb.txt'
+    target = 'sched.vcd'
+    funcPattern = re.compile(r'^Breakpoint \d, (\w*)')
+    valuesPattern = re.compile(r'^tick:(\d*)current:(\d*)countDown:(\d*)')
+    
+    functionDict = getAllFuncs()
+    timeList = valuesParsing()
+    #for a in timeList:
+        #print a
+    with open(target, 'w') as output:
+        output.write( '$version\n' )
+        output.write( '$end\n' )
+        output.write( '$timescale 1us\n' )
+        output.write( '$end\n' )
+        for name in functionDict:
+            output.write( '$var wire 1 {0} {1} $end\n'.format(name, name) )
+        output.write( '$dumpvars\n' )
+        for time in timeList:
+            output.write('#{0}\n'.format(time[1]))
+            for name in functionDict:
+                if  name == time[0]:
+                    output.write('b1 {0}\n'.format(name))
+                else:
+                    output.write('b0 {0}\n'.format(name))
+        output.write( '$end' )

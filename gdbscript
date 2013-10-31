@@ -13,11 +13,13 @@ b serial.c:37
 b serial.c:54
 b shell.c:205
 commands 3 4 5 6 7
-    echo tick_count = \ 
+    echo tick:
     output (unsigned int) *($ticks)
-    echo \n
-    bt
-    c
+    echo current:
+    output {uint32_t} 0xE000e018
+    echo countDown:
+    output {uint32_t} 0xE000e014
+	c
 end
 c
 set logging on
