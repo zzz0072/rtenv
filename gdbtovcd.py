@@ -35,14 +35,18 @@ def valuesParsing():
                 # temp[0] -> systick reload register
                 status = 0
                 temp = match.groups()
-                dur = (float(temp[2]) - float(temp[1]))
-                tick = float(temp[0])+( dur /float(temp[2]))
-                if  float(temp[1]) > preCur and preTick == float(temp[0]):
-                    tick = tick + 1
-                preCur = float(temp[1])
-                preTick = float(temp[0])
+
+                if int(temp[0]) == 0 and int(temp[1]) == 0:
+                    tick = 0;
+                else:
+                    dur = (float(temp[2]) - float(temp[1]))
+                    tick = float(temp[0])+( dur /float(temp[2]))
+                    if  float(temp[1]) > preCur and preTick == float(temp[0]):
+                        tick = tick + 1
+                    preCur = float(temp[1])
+                    preTick = float(temp[0])
+                    tick = int(tick*10)
                 print name, temp, tick
-                tick = int(tick*10)
                 timeList.append((name, tick))
     return timeList
 
