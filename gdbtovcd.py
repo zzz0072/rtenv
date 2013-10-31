@@ -30,6 +30,9 @@ def valuesParsing():
         elif status is 1:
             match = valuesPattern.search(datum)
             if  match:
+                # temp[0] -> systick intrrupt trigger times
+                # temp[1] -> systick current register
+                # temp[0] -> systick reload register
                 status = 0
                 temp = match.groups()
                 dur = (float(temp[2]) - float(temp[1]))
