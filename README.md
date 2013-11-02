@@ -1,10 +1,10 @@
 rtenv
 =====
-Simple execution environment for STM32F10x for pratice
+- Simple execution environment for STM32F10x for pratice
 
-Github repository
+Project home
 =====
-https://github.com/zzz0072/rtenv.git
+- https://github.com/zzz0072/rtenv
 
 Credit
 =====
