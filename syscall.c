@@ -98,7 +98,8 @@ union param_t
 };
 
 typedef union param_t param;
-static inline int host_call(enum HOST_SYSCALL action, void *arg)
+static int host_call(enum HOST_SYSCALL action, void *arg) __attribute__ ((naked));
+static int host_call(enum HOST_SYSCALL action, void *arg)
 {
     /* For Thumb-2 code use the BKPT instruction instead of SWI.
      * Refer to:
