@@ -81,7 +81,7 @@ void copy_task_name(void *dst, void *src, int char_to_copied)
 int find_next_empty_task_slot(struct task_control_block tasks[])
 {
     int i;
-    for (i = 0; i < TASK_LIMIT; i++) {
+    for (i = 1; i < TASK_LIMIT; i++) {
         if(tasks[i].status == TASK_IS_EMPTY) {
             return i;
         }
