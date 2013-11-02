@@ -52,7 +52,6 @@ int main()
     struct pipe_ringbuffer pipes[PIPE_LIMIT];
     struct task_control_block *ready_list[PRIORITY_LIMIT + 1];  /* [0 ... 39] */
     struct task_control_block *wait_list = NULL;
-    size_t task_count = 0;
     size_t current_task = 0;
     size_t i;
     int empty_task;
@@ -65,16 +64,15 @@ int main()
     init_rs232();
     __enable_irq();
 
-    tasks[task_count].stack = (void*)init_task(stacks[task_count], &init_user_tasks);
-    tasks[task_count].tid = 0;
-    tasks[task_count].priority = PRIORITY_DEFAULT;
+    tasks[0].stack = (void*)init_task(stacks[0], &init_user_tasks);
+    tasks[0].tid = 0;
+    tasks[0].priority = PRIORITY_DEFAULT;
+    tasks[0].status = TASK_CREATED;
 
-    copy_task_name((void *)tasks[task_count].name, (void *)"Init", 5);
-    task_count++;
+    copy_task_name((void *)tasks[0].name, (void *)"Init", 5);
 
     /* dirty global tasks */
     g_task_info.tasks = tasks;
-    g_task_info.task_amount = &task_count;
 
     /* Initialize all pipes */
     for (i = 1; i < TASK_LIMIT; i++)
@@ -136,9 +134,6 @@ int main()
                 tasks[empty_task].prev = NULL;
                 tasks[empty_task].next = NULL;
                 task_push(&ready_list[tasks[empty_task].priority], &tasks[empty_task]);
-
-                /* There is now one more task */
-                task_count++;
             }
             break;
 

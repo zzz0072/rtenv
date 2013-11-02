@@ -52,7 +52,6 @@ struct task_control_block {
 
 struct task_info {
     struct task_control_block *tasks;
-    unsigned int *task_amount;
 };
 
 char *get_task_status(int status);
