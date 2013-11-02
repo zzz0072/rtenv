@@ -56,7 +56,7 @@ struct pipe_ringbuffer {
 #define PIPE_PEEK(pipe, v, i)  RB_PEEK((pipe), PIPE_BUF, (v), (i))
 #define PIPE_LEN(pipe)     (RB_LEN((pipe), PIPE_BUF))
 
-void pathserver();
+void pathserver_task();
 int open(const char *pathname, int flags);
 void _read(struct task_control_block *task, struct task_control_block *tasks, struct pipe_ringbuffer *pipes);
 void _write(struct task_control_block *task, struct task_control_block *tasks, struct pipe_ringbuffer *pipes);
