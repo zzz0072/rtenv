@@ -7,7 +7,7 @@ b main
 b kernel.c:61
 c
 set $ticks = &tick_count
-b pathserver.c:25
+b path_server.c:25
 b serial.c:14
 b serial.c:37
 b serial.c:54
