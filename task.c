@@ -91,8 +91,8 @@ int find_next_empty_task_slot(struct task_control_block tasks[])
 
 int is_task_valid(struct task_control_block tasks[], int tid)
 {
-    if (tid >=0 && tid < TASK_LIMIT &&       /* Range  */
-        tasks[tid].status != TASK_IS_EMPTY   /* Status */) {
+    if (tid >= 0 && tid < TASK_LIMIT &&    /* Range  */
+        tasks[tid].status != TASK_IS_EMPTY /* Status */) {
         return RT_YES;
     }
     return RT_NO;
