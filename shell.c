@@ -79,7 +79,7 @@ static void read_token(char *token, int max_token_chars)
     }
 }
 
-static void cmd_ps(void)
+static void ps_cmd(void)
 {
     int i = 0;
 
@@ -102,6 +102,9 @@ static void cmd_ps(void)
     }
 }
 
+/**************************************/
+/* process command                    */
+/**************************************/
 typedef void (*cmd_func_t)(void);
 struct cmd_t
 {
@@ -110,37 +113,26 @@ struct cmd_t
     cmd_func_t handler;
 };
 
-static void test_exit(void);
-static void help_menu(void);
-static void system(void);
+static void t_exit_cmd(void);
+static void help_cmd(void);
+static void system_cmd(void);
+
+#define CMD(NAME, DESC) {.name = #NAME, .desc=DESC, NAME ## _cmd }
 
 typedef struct cmd_t cmd_entry;
 static cmd_entry available_cmds[] = {
-        {
-            .name = "ps",
-            .desc = "List process",
-            .handler = cmd_ps
-        },
-        {
-            .name = "help",
-            .desc = "This menu",
-            .handler = help_menu
-        },
+        CMD(ps,     "List process"),
+        CMD(help,   "This menu"),
         #ifdef USE_SEMIHOST
-        {
-            .name = "system",
-            .desc = "system\n\r\t\tRun host command",
-            .handler = system
-        },
+        CMD(system, "system\n\r\t\tRun host command"),
         #endif
-        {
-            .name = "t_exit",
-            .desc = "Test exit",
-            .handler = test_exit
-        }
+        CMD(t_exit, "Test exit")
 };
+
+#define CMD_NUM (sizeof(available_cmds)/sizeof(cmd_entry))
+
 #ifdef USE_SEMIHOST
-static void system(void)
+static void system_cmd(void)
 {
     char host_cmd[MAX_MSG_CHARS];
 
@@ -160,7 +152,7 @@ static void exit_test_task(void)
     exit(0);
 }
 
-static void test_exit(void) 
+static void t_exit_cmd(void) 
 {
     if (!fork("exit_test_task")) {
         setpriority(0, PRIORITY_DEFAULT - 10);
@@ -168,12 +160,12 @@ static void test_exit(void)
     }
 }
 
-static void help_menu(void)
+static void help_cmd(void)
 {
     int i = 0;
 
     my_printf("\rAvailable Commands:\n");
-    for (i = 0; i < sizeof(available_cmds)/sizeof(cmd_entry); i++) {
+    for (i = 0; i < CMD_NUM; i++) {
         my_printf("\r%s\t\t%s\n", available_cmds[i].name, available_cmds[i].desc);
     }
 }
@@ -184,7 +176,7 @@ static void proc_cmd(char *cmd)
 
     /* Lets process command */
     my_printf("\n");
-    for (i = 0; i < sizeof(available_cmds)/sizeof(cmd_entry); i++) {
+    for (i = 0; i < CMD_NUM; i++) {
         if (strncmp(cmd, available_cmds[i].name, strlen(available_cmds[i].name)) == 0) {
             /* Avoid subset case -> valid cmd: "ps" vs user input: "ps1" */
             if (cmd[strlen(available_cmds[i].name)] != '\n' ) {
@@ -201,7 +193,7 @@ void shell_task()
 {
     char str[MAX_MSG_CHARS];
 
-    help_menu();
+    help_cmd();
     while (1) {
         /* Show prompt */
         my_printf("\n\r$ ");
