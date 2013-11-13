@@ -5,6 +5,7 @@
 #define MAX_MSG_CHARS (32)
 
 void *memcpy(void *dest, const void *src, size_t n);
+void *memset(void *dest, int c, size_t n);
 void  my_puts(char *s);
 void  my_print(char *msg);
 void  my_printf(const char *fmt_str, ...);

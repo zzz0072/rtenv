@@ -169,6 +169,16 @@ void *memcpy(void *dest, const void *src, size_t n)
     }
     return dest;
 }
+
+void *memset(void *dest, int c, size_t n)
+{
+    int i;
+
+    for (i = 0; i < n; i++) {
+        *((char *)dest + i) = c;
+    }
+    return dest;
+}
 #else /* ASM optimized version */
 int strcmp(const char *a, const char *b) __attribute__ ((naked));
 int strcmp(const char *a, const char *b)
