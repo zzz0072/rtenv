@@ -11,7 +11,7 @@
 extern struct task_info g_task_info;
 
 
-static void read_token(char *token, int max_token_chars)
+static void read_line(char *token, int max_token_chars)
 {
     int fdin;
     char ch[] = {0x00, 0x00};
@@ -137,7 +137,7 @@ static void system_cmd(void)
     char host_cmd[MAX_MSG_CHARS];
 
     my_printf("\n\rEnter host command: ");
-    read_token(host_cmd, MAX_MSG_CHARS);
+    read_line(host_cmd, MAX_MSG_CHARS);
 
     if (strlen(host_cmd) < MAX_MSG_CHARS - 1 && host_cmd[0] != '\n') {
         host_system(host_cmd, strlen(host_cmd));
@@ -191,17 +191,17 @@ static void proc_cmd(char *cmd)
 
 void shell_task()
 {
-    char str[MAX_MSG_CHARS];
+    char line[MAX_MSG_CHARS];
 
     help_cmd();
     while (1) {
         /* Show prompt */
         my_printf("\n\r$ ");
-        read_token(str, MAX_MSG_CHARS);
+        read_line(line, MAX_MSG_CHARS);
 
         /* Process command */
-        if (strlen(str) < MAX_MSG_CHARS - 1 && str[0] != '\n') {
-            proc_cmd(str);
+        if (strlen(line) < MAX_MSG_CHARS - 1 && line[0] != '\n') {
+            proc_cmd(line);
         }
     }
 }
