@@ -316,6 +316,11 @@ void shell_task()
         my_printf("\n\r$ ");
         read_line(line, MAX_MSG_CHARS);
 
+        /* Skip only \n case */
+        if (strncmp(line, "\n\0", 2) == 0) {
+            continue;
+        }
+
         /* Decompose one line to tokens */
         memset((void*)&cmd_tokens, 0x00, sizeof(cmd_tokens));
         str_decompose(line, &cmd_tokens);
