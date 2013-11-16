@@ -7,9 +7,9 @@
 
 #define BACKSPACE (127)
 #define ESC        (27)
+#define SPACE      (32)
 
 extern struct task_info g_task_info;
-
 
 static void read_line(char *token, int max_token_chars)
 {
@@ -79,6 +79,69 @@ static void read_line(char *token, int max_token_chars)
     }
 }
 
+/* Tokens */
+#define MAX_TOKENS (2)
+struct tokens_t
+{
+    int count;
+    char token[MAX_TOKENS][MAX_MSG_CHARS];
+};
+typedef struct tokens_t tokens;
+
+/* This is not strtok */
+void str_decompose(char *line, tokens *str_tokens)
+{
+    int i = 0;
+    int curr_pos = 0;
+    int repeated_space = 0;
+
+    /* Init */
+    str_tokens->count = 1;
+
+    for(i = 0; i < strlen(line); i++) {
+        /* End condition always check first */
+        if (line[i] == '\n') {
+            /* Is it trailing space? */
+            if (repeated_space && str_tokens->count > 1) {
+                str_tokens->count--;
+            }
+            return;
+        }
+
+        /* We have new token while token amount is full */
+        if (str_tokens->count == MAX_TOKENS && line[i] != SPACE) {
+            return;
+        }
+
+        /* Bypass beginning space */
+        if (i == 0 && line[0] == SPACE) {
+            continue;
+        }
+
+        /* Bypass repeated SPACE */
+        if (line[i - 1] == SPACE && line[i] == SPACE) {
+            repeated_space = 1;
+            continue;
+        }
+        
+        /* Internal Field Separator is SPACE only */
+        str_tokens->token[str_tokens->count - 1][curr_pos++] = line[i];
+
+        /* Seperate token */
+        if (line[i] == SPACE) {
+            str_tokens->token[str_tokens->count - 1][curr_pos - 1] = 0;
+            repeated_space = 0;
+            /* Avoid case such as 'ps \n' */
+            if (line[i + 1] == '\n') {
+                return;
+            }
+
+            str_tokens->count++;
+            curr_pos = 0;
+        }
+    }
+}
+
 static void ps_cmd(void)
 {
     int i = 0;
@@ -110,6 +173,7 @@ struct cmd_t
 {
     char *name;
     char *desc;
+    char token_num;
     cmd_func_t handler;
 };
 
@@ -117,16 +181,19 @@ static void t_exit_cmd(void);
 static void help_cmd(void);
 static void system_cmd(void);
 
-#define CMD(NAME, DESC) {.name = #NAME, .desc=DESC, NAME ## _cmd }
+#define CMD(NAME, DESC, TOKEN_NUM) {.name = #NAME, \
+                                    .desc = DESC,  \
+                                    .token_num = TOKEN_NUM, \
+                                    NAME ## _cmd }
 
 typedef struct cmd_t cmd_entry;
 static cmd_entry available_cmds[] = {
-        CMD(ps,     "List process"),
-        CMD(help,   "This menu"),
+        CMD(ps,     "List process", 1),
+        CMD(help,   "This menu", 1),
         #ifdef USE_SEMIHOST
-        CMD(system, "system\n\r\t\tRun host command"),
+        CMD(system, "system\n\r\t\tRun host command", 1),
         #endif
-        CMD(t_exit, "Test exit")
+        CMD(t_exit, "Test exit", 1)
 };
 
 #define CMD_NUM (sizeof(available_cmds)/sizeof(cmd_entry))
@@ -170,18 +237,27 @@ static void help_cmd(void)
     }
 }
 
-static void proc_cmd(char *cmd)
+static void proc_cmd(tokens *cmd)
 {
     int i = 0;
 
     /* Lets process command */
     my_printf("\n");
     for (i = 0; i < CMD_NUM; i++) {
-        if (strncmp(cmd, available_cmds[i].name, strlen(available_cmds[i].name)) == 0) {
+        if (strncmp(cmd->token[0], available_cmds[i].name, strlen(available_cmds[i].name)) == 0) {
             /* Avoid subset case -> valid cmd: "ps" vs user input: "ps1" */
-            if (cmd[strlen(available_cmds[i].name)] != '\n' ) {
+            if (cmd->token[0][strlen(available_cmds[i].name)] != 0 ) {
                 continue;
             }
+
+            /* Parameter num should match */
+            if (cmd->count != available_cmds[i].token_num) {
+                my_printf("\rToken number not match.\n");
+                my_printf("\rExpect %d, get %d.\n", available_cmds[i].token_num, cmd->count);
+                return;
+            }
+
+            /* Run command */
             available_cmds[i].handler();
             return;
         }
@@ -192,6 +268,7 @@ static void proc_cmd(char *cmd)
 void shell_task()
 {
     char line[MAX_MSG_CHARS];
+    tokens cmd_tokens;
 
     help_cmd();
     while (1) {
@@ -199,9 +276,13 @@ void shell_task()
         my_printf("\n\r$ ");
         read_line(line, MAX_MSG_CHARS);
 
+        /* Decompose one line to tokens */
+        memset((void*)&cmd_tokens, 0x00, sizeof(cmd_tokens));
+        str_decompose(line, &cmd_tokens);
+
         /* Process command */
-        if (strlen(line) < MAX_MSG_CHARS - 1 && line[0] != '\n') {
-            proc_cmd(line);
+        if (strlen(cmd_tokens.token[0]) < MAX_MSG_CHARS - 1 && cmd_tokens.token[0] != '\n') {
+            proc_cmd(&cmd_tokens);
         }
     }
 }
