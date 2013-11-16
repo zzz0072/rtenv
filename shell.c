@@ -202,7 +202,7 @@ static cmd_entry available_cmds[] = {
         CMD(ps,     "List process"),
         CMD(help,   "This menu"),
         #ifdef USE_SEMIHOST
-        CMD(system, "system\n\r\t\tRun host command"),
+        CMD(system, "Run host command"),
         #endif
         CMD(t_exit, "Test exit")
 };
