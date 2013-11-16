@@ -264,9 +264,26 @@ static void help_cmd(tokens *cmd)
 {
     int i = 0;
 
-    my_printf("\rAvailable Commands:\n");
-    for (i = 0; i < CMD_NUM; i++) {
-        my_printf("\r%s\t\t%s\n", available_cmds[i].name, available_cmds[i].desc);
+    if (cmd && cmd->count == 2) {
+        int cmd_index = 0;
+
+        /* Is command valid? */
+        cmd_index = get_cmd_index(cmd->token[1]);
+
+        if (cmd_index == CMD_NUM) {
+            my_printf("\rCommand not found.\n");
+            return;
+        }
+
+        my_printf("\r%s\t\t%s\n", available_cmds[cmd_index].name, 
+                                  available_cmds[cmd_index].desc);
+    }
+    else {
+        my_printf("\rUse help [cmmand] to get detailed description. ex: help ps\n");
+        my_printf("\rAvailable Commands:\n");
+        for (i = 0; i < CMD_NUM; i++) {
+            my_printf("\r%s\n", available_cmds[i].name);
+        }
     }
 }
 
