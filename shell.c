@@ -210,6 +210,28 @@ static cmd_entry available_cmds[] = {
 
 #define CMD_NUM (sizeof(available_cmds)/sizeof(cmd_entry))
 
+/* Helpers */
+static int get_cmd_index(char *cmd_name)
+{
+    int i = 0;
+
+    if (!cmd_name) {
+        return CMD_NUM;
+    }
+
+    for (i = 0; i < CMD_NUM; i++) {
+        if (strncmp(cmd_name, available_cmds[i].name, strlen(available_cmds[i].name)) == 0) {
+            /* Avoid subset case -> valid cmd: "ps" vs user input: "ps1" */
+            if (cmd_name[strlen(available_cmds[i].name)] != 0 ) {
+                return CMD_NUM;
+            }
+
+            break;
+        }
+    }
+    return i;
+}
+
 #ifdef USE_SEMIHOST
 static void system_cmd(tokens *cmd)
 {
@@ -251,34 +273,31 @@ static void help_cmd(tokens *cmd)
 
 static void proc_cmd(tokens *cmd)
 {
-    int i = 0;
+    int cmd_index = 0;
 
-    /* Lets process command */
     my_printf("\n");
-    for (i = 0; i < CMD_NUM; i++) {
-        if (strncmp(cmd->token[0], available_cmds[i].name, strlen(available_cmds[i].name)) == 0) {
-            /* Avoid subset case -> valid cmd: "ps" vs user input: "ps1" */
-            if (cmd->token[0][strlen(available_cmds[i].name)] != 0 ) {
-                continue;
-            }
 
-            /* Parameter num should match */
-            if (cmd->count != available_cmds[i].token_num) {
-                my_printf("\rToken number not match.\n");
-                my_printf("\rExpect %d, get %d.\n", available_cmds[i].token_num, cmd->count);
+    /* Is command valid? */
+    cmd_index = get_cmd_index(cmd->token[0]);
 
-                for (int i = 0; i < cmd->count; i++) {
-                    my_printf("\rtoken[%d]:%s\n", i, cmd->token[i]);
-                }
-                return;
-            }
-
-            /* Run command */
-            available_cmds[i].handler(cmd);
-            return;
-        }
+    if (cmd_index == CMD_NUM) {
+        my_printf("\rCommand not found.\n");
+        return;
     }
-    my_printf("\rCommand not found.\n");
+    
+    /* Parameter num should match */
+    if (cmd->count != available_cmds[cmd_index].token_num) {
+        my_printf("\rToken number not match.\n");
+        my_printf("\rExpect %d, get %d.\n", available_cmds[cmd_index].token_num, cmd->count);
+
+        for (int i = 0; i < cmd->count; i++) {
+            my_printf("\rtoken[%d]:%s\n", i, cmd->token[i]);
+        }
+        return;
+    }
+
+    /* Run cmd */
+    available_cmds[cmd_index].handler(cmd);
 }
 
 void shell_task()
