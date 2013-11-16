@@ -193,19 +193,18 @@ static void t_exit_cmd(tokens *cmd);
 static void help_cmd(tokens *cmd);
 static void system_cmd(tokens *cmd);
 
-#define CMD(NAME, DESC, TOKEN_NUM) {.name = #NAME, \
-                                    .desc = DESC,  \
-                                    .token_num = TOKEN_NUM, \
-                                    .handler   = NAME ## _cmd }
+#define CMD(NAME, DESC) { .name = #NAME, \
+                          .desc = DESC,  \
+                          .handler   = NAME ## _cmd }
 
 typedef struct cmd_t cmd_entry;
 static cmd_entry available_cmds[] = {
-        CMD(ps,     "List process", 1),
-        CMD(help,   "This menu", 1),
+        CMD(ps,     "List process"),
+        CMD(help,   "This menu"),
         #ifdef USE_SEMIHOST
-        CMD(system, "system\n\r\t\tRun host command", 1),
+        CMD(system, "system\n\r\t\tRun host command"),
         #endif
-        CMD(t_exit, "Test exit", 1)
+        CMD(t_exit, "Test exit")
 };
 
 #define CMD_NUM (sizeof(available_cmds)/sizeof(cmd_entry))
@@ -282,17 +281,6 @@ static void proc_cmd(tokens *cmd)
 
     if (cmd_index == CMD_NUM) {
         my_printf("\rCommand not found.\n");
-        return;
-    }
-    
-    /* Parameter num should match */
-    if (cmd->count != available_cmds[cmd_index].token_num) {
-        my_printf("\rToken number not match.\n");
-        my_printf("\rExpect %d, get %d.\n", available_cmds[cmd_index].token_num, cmd->count);
-
-        for (int i = 0; i < cmd->count; i++) {
-            my_printf("\rtoken[%d]:%s\n", i, cmd->token[i]);
-        }
         return;
     }
 
