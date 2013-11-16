@@ -264,6 +264,7 @@ static void help_cmd(tokens *cmd)
 {
     int i = 0;
 
+    /* 1 parameter such as 'help ps' */
     if (cmd && cmd->count == 2) {
         int cmd_index = 0;
 
@@ -278,7 +279,7 @@ static void help_cmd(tokens *cmd)
         my_printf("\r%s\t\t%s\n", available_cmds[cmd_index].name, 
                                   available_cmds[cmd_index].desc);
     }
-    else {
+    else { /* list all commands */
         my_printf("\rUse help [cmmand] to get detailed description. ex: help ps\n");
         my_printf("\rAvailable Commands:\n");
         for (i = 0; i < CMD_NUM; i++) {
