@@ -196,7 +196,7 @@ static void system_cmd(tokens *cmd);
 #define CMD(NAME, DESC, TOKEN_NUM) {.name = #NAME, \
                                     .desc = DESC,  \
                                     .token_num = TOKEN_NUM, \
-                                    NAME ## _cmd }
+                                    .handler   = NAME ## _cmd }
 
 typedef struct cmd_t cmd_entry;
 static cmd_entry available_cmds[] = {
