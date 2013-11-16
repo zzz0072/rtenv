@@ -202,8 +202,9 @@ static cmd_entry available_cmds[] = {
         CMD(ps,     "List process"),
         CMD(help,   "This menu"),
         #ifdef USE_SEMIHOST
-        CMD(system, "Run host command"),
-        #endif
+        CMD(system, "Run host command \n" \
+                    "\n\rUsage: system host_command \n"),
+            #endif
         CMD(demo_task_exit, "Demo exits a task")
 };
 
@@ -234,13 +235,12 @@ static int get_cmd_index(char *cmd_name)
 #ifdef USE_SEMIHOST
 static void system_cmd(tokens *cmd)
 {
-    char host_cmd[MAX_MSG_CHARS];
+    if (!cmd || cmd->count != 2) {
+        return;
+    }
 
-    my_printf("\n\rEnter host command: ");
-    read_line(host_cmd, MAX_MSG_CHARS);
-
-    if (strlen(host_cmd) < MAX_MSG_CHARS - 1 && host_cmd[0] != '\n') {
-        host_system(host_cmd, strlen(host_cmd));
+    if (strlen(cmd->token[1]) < MAX_MSG_CHARS - 1 && cmd->token[1][0] != '\n') {
+        host_system(cmd->token[1], strlen(cmd->token[1]));
     }
 }
 #endif
