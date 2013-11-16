@@ -88,15 +88,16 @@ struct tokens_t
 };
 typedef struct tokens_t tokens;
 
-/* This is not strtok */
+/* This is not strtok. Internal Field Separator is SPACE only */
 void str_decompose(char *line, tokens *str_tokens)
 {
     int i = 0;
     int curr_pos = 0;
     int repeated_space = 0;
+    int is_quoting = 0;
 
     /* Init */
-    str_tokens->count = 1;
+    str_tokens->count = 0;
 
     for(i = 0; i < strlen(line); i++) {
         /* End condition always check first */
@@ -105,6 +106,11 @@ void str_decompose(char *line, tokens *str_tokens)
             if (repeated_space && str_tokens->count > 1) {
                 str_tokens->count--;
             }
+            else {
+                str_tokens->token[str_tokens->count][curr_pos] = 0;
+                str_tokens->count++;
+            }
+
             return;
         }
 
@@ -123,21 +129,27 @@ void str_decompose(char *line, tokens *str_tokens)
             repeated_space = 1;
             continue;
         }
-        
-        /* Internal Field Separator is SPACE only */
-        str_tokens->token[str_tokens->count - 1][curr_pos++] = line[i];
+
+        /* Deal with quoting */
+        if (line[i] == '"' ) {
+            is_quoting = !is_quoting;
+            continue;
+        }
+
+        /* Take char to token */
+        str_tokens->token[str_tokens->count][curr_pos++] = line[i];
 
         /* Seperate token */
-        if (line[i] == SPACE) {
-            str_tokens->token[str_tokens->count - 1][curr_pos - 1] = 0;
+        if (line[i] == SPACE && !is_quoting) {
+            str_tokens->token[str_tokens->count][curr_pos - 1] = 0;
+            str_tokens->count++;
+            curr_pos = 0;
             repeated_space = 0;
+
             /* Avoid case such as 'ps \n' */
             if (line[i + 1] == '\n') {
                 return;
             }
-
-            str_tokens->count++;
-            curr_pos = 0;
         }
     }
 }
@@ -254,6 +266,10 @@ static void proc_cmd(tokens *cmd)
             if (cmd->count != available_cmds[i].token_num) {
                 my_printf("\rToken number not match.\n");
                 my_printf("\rExpect %d, get %d.\n", available_cmds[i].token_num, cmd->count);
+
+                for (int i = 0; i < cmd->count; i++) {
+                    my_printf("\rtoken[%d]:%s\n", i, cmd->token[i]);
+                }
                 return;
             }
 
