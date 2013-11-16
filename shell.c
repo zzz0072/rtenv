@@ -189,7 +189,7 @@ struct cmd_t
     cmd_func_t handler;
 };
 
-static void t_exit_cmd(tokens *cmd);
+static void demo_task_exit_cmd(tokens *cmd);
 static void help_cmd(tokens *cmd);
 static void system_cmd(tokens *cmd);
 
@@ -204,7 +204,7 @@ static cmd_entry available_cmds[] = {
         #ifdef USE_SEMIHOST
         CMD(system, "Run host command"),
         #endif
-        CMD(t_exit, "Test exit")
+        CMD(demo_task_exit, "Demo exits a task")
 };
 
 #define CMD_NUM (sizeof(available_cmds)/sizeof(cmd_entry))
@@ -252,7 +252,7 @@ static void exit_test_task()
     exit(0);
 }
 
-static void t_exit_cmd(tokens *cmd) 
+static void demo_task_exit_cmd(tokens *cmd) 
 {
     if (!fork("exit_test_task")) {
         setpriority(0, PRIORITY_DEFAULT - 10);
