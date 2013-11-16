@@ -180,7 +180,7 @@ static void ps_cmd(void)
 /**************************************/
 /* process command                    */
 /**************************************/
-typedef void (*cmd_func_t)(void);
+typedef void (*cmd_func_t)(tokens *cmd);
 struct cmd_t
 {
     char *name;
@@ -189,9 +189,9 @@ struct cmd_t
     cmd_func_t handler;
 };
 
-static void t_exit_cmd(void);
-static void help_cmd(void);
-static void system_cmd(void);
+static void t_exit_cmd(tokens *cmd);
+static void help_cmd(tokens *cmd);
+static void system_cmd(tokens *cmd);
 
 #define CMD(NAME, DESC, TOKEN_NUM) {.name = #NAME, \
                                     .desc = DESC,  \
@@ -211,7 +211,7 @@ static cmd_entry available_cmds[] = {
 #define CMD_NUM (sizeof(available_cmds)/sizeof(cmd_entry))
 
 #ifdef USE_SEMIHOST
-static void system_cmd(void)
+static void system_cmd(tokens *cmd)
 {
     char host_cmd[MAX_MSG_CHARS];
 
@@ -223,7 +223,7 @@ static void system_cmd(void)
     }
 }
 #endif
-static void exit_test_task(void)
+static void exit_test_task()
 {
     my_printf("\rtest...sleep 3 second\n");
     sleep(3000); /* ms */
@@ -231,7 +231,7 @@ static void exit_test_task(void)
     exit(0);
 }
 
-static void t_exit_cmd(void) 
+static void t_exit_cmd(tokens *cmd) 
 {
     if (!fork("exit_test_task")) {
         setpriority(0, PRIORITY_DEFAULT - 10);
@@ -239,7 +239,7 @@ static void t_exit_cmd(void)
     }
 }
 
-static void help_cmd(void)
+static void help_cmd(tokens *cmd)
 {
     int i = 0;
 
@@ -274,7 +274,7 @@ static void proc_cmd(tokens *cmd)
             }
 
             /* Run command */
-            available_cmds[i].handler();
+            available_cmds[i].handler(cmd);
             return;
         }
     }
@@ -286,7 +286,7 @@ void shell_task()
     char line[MAX_MSG_CHARS];
     tokens cmd_tokens;
 
-    help_cmd();
+    help_cmd(0);
     while (1) {
         /* Show prompt */
         my_printf("\n\r$ ");
