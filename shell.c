@@ -316,7 +316,7 @@ void shell_task()
         str_decompose(line, &cmd_tokens);
 
         /* Process command */
-        if (strlen(cmd_tokens.token[0]) < MAX_MSG_CHARS - 1 && cmd_tokens.token[0] != '\n') {
+        if (strlen(cmd_tokens.token[0]) < MAX_MSG_CHARS - 1 && cmd_tokens.token[0][0] != '\n') {
             proc_cmd(&cmd_tokens);
         }
     }
